@@ -4,11 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SMP Cahaya Ilmu</title>
+    <title>Rumah Qur'an Ibnu Abbas</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('images/logo-ibnu-abbas.jpg') }}" type="image/jpeg">
     <link rel="stylesheet" href="{{ asset('template/assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('template/assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('template/assets/compiled/css/iconly.css') }}">
@@ -20,7 +19,7 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
-            width: 80px;
+            width: 150px;
             /* atau sesuaikan ukuran */
             height: auto;
         }
@@ -62,9 +61,9 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card shadow-sm rounded-4">
                     <div class="card-body p-4">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo"
+                        <img src="{{ asset('images/logo-ibnu-abbas.jpg') }}" alt="Logo Rumah Qur'an Ibnu Abbas"
                             class="login-icon mb-3">
-                        <h4 class="text-center mb-4">SMP Cahaya Ilmu</h4>
+                        <h4 class="text-center mb-4">Rumah Qur'an Ibnu Abbas</h4>
 
                         <form id="formLogin">
                             @csrf

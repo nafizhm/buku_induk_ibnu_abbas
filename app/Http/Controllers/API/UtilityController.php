@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pengajar;
 use App\Models\JenjangKelas;
 use App\Models\Role;
 use App\Models\Rombel;
@@ -94,55 +93,6 @@ class UtilityController extends Controller
                 [
                     "success" => false,
                     'message' => 'Data rombel gagal diambil',
-                    'data' => []
-                ],
-                500
-            );
-        }
-    }
-
-    public function getPengajar()
-    {
-        try {
-            $pengajar = Pengajar::isActive()->where('jabatan', 'Wali Kelas')->get();
-
-            return response()->json(
-                [
-                    "success" => true,
-                    'message' => 'Data pengajar berhasil diambil',
-                    "data" => $pengajar
-                ],
-                200
-            );
-        } catch (Exception $e) {
-            return response()->json(
-                [
-                    "success" => false,
-                    'message' => 'Data pengajar gagal diambil',
-                    'data' => []
-                ],
-                500
-            );
-        }
-    }
-
-    public function getPengajarMapel()
-    {
-        try {
-            $pengajar = Pengajar::isActive()->where('jabatan', 'Pengajar Mapel')->get();
-            return response()->json(
-                [
-                    "success" => true,
-                    'message' => 'Data pengajar mapel berhasil diambil',
-                    "data" => $pengajar
-                ],
-                200
-            );
-        } catch (Exception $e) {
-            return response()->json(
-                [
-                    "success" => false,
-                    'message' => 'Data pengajar mapel gagal diambil',
                     'data' => []
                 ],
                 500

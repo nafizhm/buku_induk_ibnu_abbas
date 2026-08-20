@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\HakAkses;
 use App\Models\Menu;
-use App\Models\TahunAjaran;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -67,11 +66,8 @@ class AuthController extends Controller
             }])
             ->get();
 
-        $tahunAjaranList = TahunAjaran::all();
-
         session([
             'getmenus' => $getmenus,
-            'tahunAjaranList' => $tahunAjaranList
         ]);
 
         return response()->json(['status' => 'success']);

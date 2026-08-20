@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SMP Cahaya Ilmu</title>
+    <title>Rumah Qur'an Ibnu Abbas</title>
 
-    <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('images/logo-ibnu-abbas.jpg') }}" type="image/jpeg">
 
     <link rel="stylesheet"
         href="{{ asset('template/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}">
@@ -247,8 +246,8 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="{{ asset('images/logo.png') }}" alt="Logo"
-                                    style="width:80px; height:auto;">
+                            <a href="{{ route('dashboard') }}"><img src="{{ asset('images/logo-ibnu-abbas.jpg') }}" alt="Logo Rumah Qur'an Ibnu Abbas"
+                                    style="width:110px; height:auto;">
                             </a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
@@ -294,12 +293,10 @@
                             use Illuminate\Support\Str;
                             $getmenus = session('getmenus', []);
                             $currentRoute = request()->route()->getName();
-                            $tahunAjaranList = session('tahunAjaranList');
                         @endphp
 
                         @foreach ($getmenus as $menu)
                             @php
-                                $isRombel = $menu->title === 'Rombongan Belajar';
                                 $availableChildren = isset($menu->children)
                                     ? $menu->children->filter(fn ($submenu) => Route::has($submenu->route_name))
                                     : collect();
@@ -315,40 +312,7 @@
                                 });
                             @endphp
 
-                            @if (!$isRombel && !$hasChildren && !$hasRoute)
-                                @continue
-                            @endif
-
-                            @if ($isRombel)
-                                <li
-                                    class="sidebar-item has-sub {{ str_starts_with(Route::currentRouteName(), 'rombel') ? 'active' : '' }}">
-                                    <a href="#" class="sidebar-link">
-                                        <i class="{{ $menu->icon }}"></i>
-                                        <span>{{ $menu->title }}</span>
-                                    </a>
-                                    <ul class="submenu">
-                                        @if (!empty($tahunAjaranList))
-                                            @foreach ($tahunAjaranList as $tahun)
-                                                @php
-                                                    [$tahun1, $tahun2] = explode('/', $tahun->tahun);
-                                                    $isActive =
-                                                        request()->route('tahun1') . '/' . request()->route('tahun2') ==
-                                                        $tahun->tahun;
-                                                @endphp
-                                                <li class="submenu-item {{ $isActive ? 'active' : '' }}">
-                                                    <a href="{{ route('rombel.index', ['tahun1' => $tahun1, 'tahun2' => $tahun2]) }}"
-                                                        class="submenu-link">
-                                                        Rombel {{ $tahun->tahun }}
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        @else
-                                            <li class="submenu-item">
-                                                <a href="#" class="submenu-link">Belum ada Tahun Ajaran</a>
-                                            </li>
-                                        @endif
-                                    </ul>
-                                </li>
+                            @if (!$hasChildren && !$hasRoute)
                                 @continue
                             @endif
 

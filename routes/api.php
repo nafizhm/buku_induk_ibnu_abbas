@@ -11,8 +11,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/get-jenjang', [UtilityController::class, 'getJenjang'])->name('get-jenjang');
 Route::get('/get-roles', [UtilityController::class, 'getRoles'])->name('get-roles');
 Route::get('/get-rombel', [UtilityController::class, 'getRombel'])->name('get-rombel');
-Route::get('/get-guru', [UtilityController::class, 'getPengajar'])->name('get-guru');
-Route::get('/get-guru-mapel', [UtilityController::class, 'getGuruMapel'])->name('get-guru-mapel');
 Route::get('/get-kelas/{id}', [UtilityController::class, 'getKelas'])->name('get-kelas');
 
 // Route::middleware('auth:sanctum')->group(function () {
