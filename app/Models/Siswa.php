@@ -10,14 +10,16 @@ class Siswa extends Model
     protected $guarded = ['id'];
     protected $casts = [
         'tanggal_lahir' => 'date:Y-m-d', 'tanggal_masuk_sekolah' => 'date:Y-m-d',
-        'berkebutuhan_khusus' => 'boolean', 'jarak_sekolah' => 'decimal:2',
+        'tanggal_keluar' => 'date:Y-m-d',
+        'berkebutuhan_khusus' => 'boolean', 'jarak_sekolah' => 'decimal:2', 'jarak_tempuh' => 'decimal:2',
+        'lintang' => 'decimal:6', 'bujur' => 'decimal:6',
         'tinggi_badan' => 'decimal:2', 'berat_badan' => 'decimal:2', 'lingkar_kepala' => 'decimal:2',
+        'punya_kip' => 'boolean', 'terima_kip' => 'boolean',
     ];
 
-    public function orangTua() { return $this->hasMany(DataOrangTuaSiswa::class); }
-    public function ayah() { return $this->hasOne(DataOrangTuaSiswa::class)->where('jenis', 'Ayah'); }
-    public function ibu() { return $this->hasOne(DataOrangTuaSiswa::class)->where('jenis', 'Ibu'); }
-    public function wali() { return $this->hasOne(WaliSiswa::class); }
+    public function orangTua() { return $this->hasOne(OrangTua::class); }
     public function lampiran() { return $this->hasMany(LampiranSiswa::class); }
     public function kelas() { return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas'); }
+    public function prestasi() { return $this->hasMany(PrestasiSiswa::class); }
+    public function beasiswa() { return $this->hasMany(BeasiswaSiswa::class); }
 }

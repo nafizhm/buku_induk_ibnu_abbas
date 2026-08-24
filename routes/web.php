@@ -13,6 +13,7 @@ use App\Http\Controllers\RaporSiswaController;
 use App\Http\Controllers\Siswa\CalonSiswaController;
 use App\Http\Controllers\Siswa\PendaftaranController;
 use App\Http\Controllers\Siswa\SiswaController;
+use App\Http\Controllers\Mobile\SiswaController as MobileSiswaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +42,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
     Route::prefix('siswa')->group(function () {
         Route::resource('pendaftaran', PendaftaranController::class)->only(['index', 'store']);
-        
+
         Route::controller(SiswaController::class)->group(function () {
             Route::get('/', 'index')->name('siswa.index');
             Route::get('/create', 'create')->name('siswa.create');
@@ -80,3 +81,18 @@ Route::get('/paksa-logout', function () {
     request()->session()->regenerateToken();
     return redirect('/')->with('success', 'Anda telah logout.');
 });
+
+
+Route::get('test', function () {
+    return view('mobile.login');
+});
+
+Route::get('register', function () {
+    return view('mobile.register');
+})->name('mobile.register');
+
+Route::get('siswa/daftar', [MobileSiswaController::class, 'create'])->name('siswa.daftar.create');
+
+Route::post('siswa', [MobileSiswaController::class, 'store'])->name('siswa.daftar.store');
+
+Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->name('siswa.daftar.update');
