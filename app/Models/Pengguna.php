@@ -24,4 +24,11 @@ class Pengguna extends Model
     {
         return $this->belongsTo(Role::class, 'id_role');
     }
+
+    public function siswa()
+    {
+        return $this->belongsToMany(Siswa::class, 'akun_siswa', 'user_id', 'siswa_id')
+            ->withPivot('hubungan')
+            ->using(AkunSiswa::class);
+    }
 }

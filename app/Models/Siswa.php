@@ -22,4 +22,10 @@ class Siswa extends Model
     public function kelas() { return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas'); }
     public function prestasi() { return $this->hasMany(PrestasiSiswa::class); }
     public function beasiswa() { return $this->hasMany(BeasiswaSiswa::class); }
+    public function pengguna()
+    {
+        return $this->belongsToMany(Pengguna::class, 'akun_siswa', 'siswa_id', 'user_id')
+            ->withPivot('hubungan')
+            ->using(AkunSiswa::class);
+    }
 }

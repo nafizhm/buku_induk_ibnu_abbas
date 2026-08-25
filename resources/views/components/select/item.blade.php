@@ -19,10 +19,10 @@
 @endphp
 
 <li
-    x-init="if (value === @js($value)) selectedLabel = @js($label ?? $value); items[@js($value)] = @js($label ?? $value)"
+    x-init="items[@js($value)] = @js($label ?? $value); if (!multiple && value === @js($value)) _label = @js($label ?? $value)"
     @click="select(@js($value), @js($label ?? $value))"
     x-show="!(searchable && query) || '{{ $search }}'.includes(query.toLowerCase())"
-    :aria-selected="value === @js($value)"
+    :aria-selected="multiple ? value.includes(@js($value)) : value === @js($value)"
     :data-disabled="disabled"
     :data-value="@js($value)"
     data-slot="select-item"
@@ -48,7 +48,8 @@
         {{ $slot }}
     </span>
 
-    <span class="pointer-events-none absolute right-2 flex size-4 items-center justify-center" x-show="value === @js($value)">
+    <span class="pointer-events-none absolute right-2 flex size-4 items-center justify-center"
+        x-show="multiple ? value.includes(@js($value)) : value === @js($value)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4">
             <path d="M20 6L9 17l-5-5" />

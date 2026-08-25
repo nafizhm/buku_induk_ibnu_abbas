@@ -3,18 +3,16 @@
 @section('content')
     <div class="flex h-dvh justify-center overflow-x-clip bg-muted select-none">
         <div
-            class="relative flex w-full max-w-md flex-col overflow-hidden overscroll-x-none border-x border-border bg-background [-webkit-tap-highlight-color:transparent]">
+            class="relative flex w-full max-w-md flex-col overflow-hidden overscroll-x-none border-x border-border bg-background">
             <div class="p-6 min-h-full">
                 <div class="flex h-full flex-col">
                     <div class="flex flex-1 flex-col justify-center gap-4">
 
                         {{-- Branding --}}
                         <div class="w-fit rounded-md bg-chart-3 p-2">
-                            {{-- Icon AMD --}}
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                                 fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                {{-- SVG AMD --}}
                             </svg>
                         </div>
 
@@ -24,24 +22,57 @@
                             </h1>
 
                             <p class="text-sm text-muted-foreground">
-                                Silahkan masukkan email dan password anda untuk akses fitur komunitas
+                                Masukkan nomor telepon dan password untuk masuk
                             </p>
                         </div>
 
                         {{-- Login Form --}}
-                        <form method="POST" action="{{ route('login') }}" class="space-y-2">
+                        <form method="POST" action="{{ route('admin.loginPost') }}" class="space-y-2" x-data="{
+                                loading: false,
+                                error: '',
+                                submit(e) {
+                                    e.preventDefault()
+                                    this.loading = true
+                                    this.error = ''
+                                    const form = e.target
+                                    fetch(form.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-CSRF-TOKEN': form.querySelector('input[name=_token]').value
+                                        },
+                                        body: JSON.stringify({
+                                            username: form.username.value,
+                                            password: form.password.value,
+                                        })
+                                    })
+                                        .then(async res => {
+                                            if (res.ok) {
+                                                window.location.href = '{{ url('/') }}'
+                                                return
+                                            }
+                                            const json = await res.json()
+                                            const errors = json.errors ?? {}
+                                            this.error = Object.values(errors)[0]?.[0] ?? 'Gagal masuk.'
+                                        })
+                                        .catch(() => this.error = 'Terjadi kesalahan, coba lagi.')
+                                        .finally(() => this.loading = false)
+                                }
+                            }" @submit="submit($event)">
                             @csrf
 
                             <div class="space-y-2">
 
-                                {{-- Email --}}
+                                {{-- Username (No. Telepon) --}}
                                 <div class="space-y-2">
-                                    <label for="email" class="text-sm leading-none">
-                                        Email
+                                    <label for="username" class="text-sm leading-none">
+                                        No. Telepon
                                     </label>
 
-                                    <x-input id="email" type="email" name="email" autocomplete="email"
-                                        placeholder="Masukkan email anda" value="{{ old('email') }}" required />
+                                    <x-input id="username" type="tel" name="username" inputmode="numeric"
+                                        autocomplete="username" placeholder="08xxxxxxxxxx"
+                                        value="{{ old('username') }}" required />
                                 </div>
 
                                 {{-- Password --}}
@@ -54,26 +85,10 @@
                                         placeholder="Masukkan password anda" required />
                                 </div>
 
-                                <x-select name="status" value="draft" size="lg" placeholder="Pilih status...">
-                                    <x-select.trigger />
-
-                                    <x-select.content>
-                                        <x-select.group>
-                                            <x-select.label>Status</x-select.label>
-
-                                            <x-select.item value="draft" label="Draft">Draft</x-select.item>
-                                            <x-select.item value="published" label="Published">Published</x-select.item>
-
-                                            <x-select.separator />
-
-                                            <x-select.item value="archived" label="Archived" disabled>
-                                                Archived
-                                            </x-select.item>
-                                        </x-select.group>
-                                    </x-select.content>
-                                </x-select>
-
                                 {{-- Error --}}
+                                <p x-show="error !== ''" x-text="error" x-cloak class="text-sm text-destructive"
+                                    role="alert"></p>
+
                                 @if ($errors->any())
                                     <p class="text-sm text-destructive" role="alert">
                                         {{ $errors->first() }}
@@ -90,7 +105,8 @@
                                 {{-- Submit --}}
                                 <div>
                                     <x-button type="submit" class="w-full">
-                                        Masuk
+                                        <span x-show="!loading">Masuk</span>
+                                        <span x-show="loading" x-cloak>Memproses...</span>
                                     </x-button>
                                 </div>
 
@@ -101,7 +117,8 @@
                         <p class="text-center text-sm text-muted-foreground">
                             Belum punya akun?
 
-                            <a href="" class="font-medium text-primary underline-offset-4 hover:underline">
+                            <a href="{{ route('mobile.register') }}"
+                                class="font-medium text-primary underline-offset-4 hover:underline">
                                 Daftar sekarang
                             </a>
                         </p>

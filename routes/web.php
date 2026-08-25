@@ -13,6 +13,7 @@ use App\Http\Controllers\RaporSiswaController;
 use App\Http\Controllers\Siswa\CalonSiswaController;
 use App\Http\Controllers\Siswa\PendaftaranController;
 use App\Http\Controllers\Siswa\SiswaController;
+use App\Http\Controllers\Mobile\RegisterController;
 use App\Http\Controllers\Mobile\SiswaController as MobileSiswaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -83,16 +84,21 @@ Route::get('/paksa-logout', function () {
 });
 
 
-Route::get('test', function () {
-    return view('mobile.login');
+Route::prefix('mobile')->group(function () {
+    Route::get('login', function () {
+        return view('mobile.login');
+    })->name('mobile.login');
+
+    Route::controller(RegisterController::class)->group(function () {
+        Route::get('register', 'show')->name('mobile.register');
+        Route::post('register', 'store')->name('mobile.register.store');
+        Route::get('register/success', 'success')->name('mobile.register.success');
+        Route::get('register/siswa/{kelas}', 'getSiswa')->name('mobile.register.siswa');
+    });
+
+    Route::get('siswa/daftar', [MobileSiswaController::class, 'create'])->name('siswa.daftar.create');
+
+    Route::post('siswa', [MobileSiswaController::class, 'store'])->name('siswa.daftar.store');
+
+    Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->name('siswa.daftar.update');
 });
-
-Route::get('register', function () {
-    return view('mobile.register');
-})->name('mobile.register');
-
-Route::get('siswa/daftar', [MobileSiswaController::class, 'create'])->name('siswa.daftar.create');
-
-Route::post('siswa', [MobileSiswaController::class, 'store'])->name('siswa.daftar.store');
-
-Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->name('siswa.daftar.update');
