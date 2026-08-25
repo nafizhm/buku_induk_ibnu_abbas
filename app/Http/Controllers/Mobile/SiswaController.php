@@ -16,6 +16,107 @@ class SiswaController extends Controller
         return view('mobile.create');
     }
 
+    public function show(Siswa $siswa)
+    {
+        $siswa->load(['orangTua', 'prestasi', 'beasiswa']);
+        $ot = $siswa->orangTua;
+        $prestasi = $siswa->prestasi->first();
+        $beasiswa = $siswa->beasiswa->first();
+
+        $formatDate = fn($d) => $d ? (is_string($d) ? $d : $d->format('Y-m-d')) : null;
+
+        return response()->json([
+            'id' => $siswa->id,
+            'data' => [
+                // Step 1 - Data Pribadi & Kontak
+                'nama_lengkap' => $siswa->nama_lengkap,
+                'jenis_kelamin' => $siswa->jenis_kelamin,
+                'nisn' => $siswa->nisn,
+                'nik' => $siswa->nik,
+                'no_kk' => $siswa->no_kk,
+                'tempat_lahir' => $siswa->tempat_lahir,
+                'tanggal_lahir' => $formatDate($siswa->tanggal_lahir),
+                'no_akta' => $siswa->no_akta,
+                'agama' => $siswa->agama,
+                'kewarganegaraan' => $siswa->kewarganegaraan,
+                'nama_negara' => $siswa->nama_negara,
+                'berkebutuhan_khusus' => $siswa->jenis_kebutuhan_khusus ?? ($siswa->berkebutuhan_khusus ? 'Lainnya' : 'Tidak'),
+                'alamat_jalan' => $siswa->alamat,
+                'rt' => $siswa->rt,
+                'rw' => $siswa->rw,
+                'nama_dusun' => $siswa->dusun,
+                'kelurahan' => $siswa->desa_kelurahan,
+                'kecamatan' => $siswa->kecamatan,
+                'kode_pos' => $siswa->kode_pos,
+                'lintang' => $siswa->lintang,
+                'bujur' => $siswa->bujur,
+                'tempat_tinggal' => $siswa->status_tempat_tinggal,
+                'moda_transportasi' => $siswa->moda_transportasi,
+                'anak_ke' => $siswa->anak_ke,
+                'pekerjaan' => $siswa->pekerjaan,
+                'punya_kip' => $siswa->punya_kip === null ? null : ($siswa->punya_kip ? 'Ya' : 'Tidak'),
+                'terima_kip' => $siswa->terima_kip === null ? null : ($siswa->terima_kip ? 'Ya' : 'Tidak'),
+                'alasan_tolak_pip' => $siswa->alasan_tolak_pip,
+                'telp_rumah' => $siswa->no_telepon_rumah,
+                'no_hp' => $siswa->no_hp,
+                'email' => $siswa->email,
+                // Step 3 - Data Periodik & Kesejahteraan
+                'tinggi_badan' => $siswa->tinggi_badan,
+                'berat_badan' => $siswa->berat_badan,
+                'lingkar_kepala' => $siswa->lingkar_kepala,
+                'jarak_tempuh' => $siswa->jarak_tempuh,
+                'waktu_jam' => $siswa->waktu_jam,
+                'waktu_menit' => $siswa->waktu_menit,
+                'jumlah_saudara' => $siswa->jumlah_saudara ?? $siswa->jumlah_saudara_kandung ?? null,
+                'jenis_kesejahteraan' => $siswa->jenis_kesejahteraan,
+                'no_kartu' => $siswa->no_kartu,
+                'nama_di_kartu' => $siswa->nama_di_kartu,
+                // Step 4 - Registrasi, Prestasi & Beasiswa
+                'kompetensi_keahlian' => $siswa->kompetensi_keahlian,
+                'nis' => $siswa->nis,
+                'tanggal_masuk' => $formatDate($siswa->tanggal_masuk_sekolah),
+                'sekolah_asal' => $siswa->sekolah_asal,
+                'no_peserta_un' => $siswa->no_peserta_un,
+                'no_seri_ijazah' => $siswa->no_seri_ijazah,
+                'no_skhun' => $siswa->no_skhun,
+                'keluar_karena' => $siswa->keluar_karena,
+                'tanggal_keluar' => $formatDate($siswa->tanggal_keluar),
+                'alasan_keluar' => $siswa->alasan_keluar,
+                // Step 2 - Orang Tua / Wali
+                'ayah_nama' => $ot?->nama_ayah ?? null,
+                'ayah_nik' => $ot?->nik_ayah ?? null,
+                'ayah_tahun_lahir' => $ot?->tahun_lahir_ayah ?? null,
+                'ayah_pendidikan' => $ot?->pendidikan_ayah ?? null,
+                'ayah_pekerjaan' => $ot?->pekerjaan_ayah ?? null,
+                'ayah_penghasilan' => $ot?->penghasilan_ayah ?? null,
+                'ayah_berkebutuhan' => $ot?->berkebutuhan_ayah ?? null,
+                'ibu_nama' => $ot?->nama_ibu ?? null,
+                'ibu_nik' => $ot?->nik_ibu ?? null,
+                'ibu_tahun_lahir' => $ot?->tahun_lahir_ibu ?? null,
+                'ibu_pendidikan' => $ot?->pendidikan_ibu ?? null,
+                'ibu_pekerjaan' => $ot?->pekerjaan_ibu ?? null,
+                'ibu_penghasilan' => $ot?->penghasilan_ibu ?? null,
+                'ibu_berkebutuhan' => $ot?->berkebutuhan_ibu ?? null,
+                'wali_nama' => $ot?->nama_wali ?? null,
+                'wali_nik' => $ot?->nik_wali ?? null,
+                'wali_tahun_lahir' => $ot?->tahun_lahir_wali ?? null,
+                'wali_pendidikan' => $ot?->pendidikan_wali ?? null,
+                'wali_pekerjaan' => $ot?->pekerjaan_wali ?? null,
+                'wali_penghasilan' => $ot?->penghasilan_wali ?? null,
+                // Prestasi & Beasiswa
+                'prestasi_jenis' => $prestasi->jenis ?? null,
+                'prestasi_tingkat' => $prestasi->tingkat ?? null,
+                'prestasi_nama' => $prestasi->nama ?? null,
+                'prestasi_tahun' => $prestasi->tahun ?? null,
+                'prestasi_penyelenggara' => $prestasi->penyelenggara ?? null,
+                'beasiswa_jenis' => $beasiswa->jenis ?? null,
+                'beasiswa_keterangan' => $beasiswa->keterangan ?? null,
+                'beasiswa_tahun_mulai' => $beasiswa->tahun_mulai ?? null,
+                'beasiswa_tahun_selesai' => $beasiswa->tahun_selesai ?? null,
+            ],
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate($this->rules());

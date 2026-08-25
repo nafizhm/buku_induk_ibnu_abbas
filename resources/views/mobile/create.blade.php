@@ -883,13 +883,111 @@
                 kewarganegaraan: 'WNI',
                 id: null,
                 saving: false,
+                loadingHydrate: false,
                 error: '',
                 errors: {},
                 done: false,
-                init() {
+                async init() {
                     this.id = localStorage.getItem('siswa_daftar_id') || null;
                     const s = parseInt(localStorage.getItem('siswa_daftar_step') || '1', 10);
                     if (s >= 1 && s <= 4) this.step = s;
+                    if (this.id) {
+                        await this.hydrate();
+                    }
+                },
+                async hydrate() {
+                    if (!this.id) return;
+                    this.loadingHydrate = true;
+                    try {
+                        let res = await fetch('/mobile/siswa/' + this.id, {
+                            headers: { 'Accept': 'application/json' },
+                        });
+                        // fallback ke /siswa untuk kompatibilitas data lama
+                        if (!res.ok) {
+                            const alt = await fetch('/siswa/' + this.id, {
+                                headers: { 'Accept': 'application/json' },
+                            });
+                            if (alt.ok) res = alt;
+                        }
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const json = await res.json();
+                        const data = json.data || json;
+                        // value di localStorage mungkin string, pastikan kewarganegaraan sinkron sebelum fill
+                        if (data.kewarganegaraan) this.kewarganegaraan = data.kewarganegaraan;
+                        // delay agar semua x-data select sudah ter-init (items terisi)
+                        await new Promise(r => setTimeout(r, 80));
+                        // juga tunggu Alpine nextTick jika tersedia
+                        if (this.$nextTick) await this.$nextTick(() => {});
+                        this.fillAll(data);
+                        // second pass after Alpine render
+                        await new Promise(r => setTimeout(r, 50));
+                        this.fillAll(data);
+                    } catch (e) {
+                        console.warn('hydrate gagal', e);
+                        // jika 404, bersihkan storage agar tidak stuck di step terakhir dengan data kosong
+                        if (String(e).includes('404')) {
+                            localStorage.removeItem('siswa_daftar_id');
+                            localStorage.removeItem('siswa_daftar_step');
+                            this.id = null;
+                            this.step = 1;
+                        }
+                    } finally {
+                        this.loadingHydrate = false;
+                    }
+                },
+                fillAll(data) {
+                    for (const [k, v] of Object.entries(data)) {
+                        if (v === null || v === undefined || v === '') continue;
+                        this.fillField(k, v);
+                    }
+                },
+                fillField(name, value) {
+                    const strVal = String(value);
+                    // radio (jenis_kelamin)
+                    const radios = document.querySelectorAll('input[type=\"radio\"][name=\"' + name + '\"]');
+                    if (radios.length) {
+                        radios.forEach(r => {
+                            r.checked = r.value === strVal;
+                            if (r.checked) r.dispatchEvent(new Event('change', { bubbles: true }));
+                        });
+                        return;
+                    }
+                    // select custom (hidden input di dalam div[x-data])
+                    const hidden = document.querySelector('input[type=\"hidden\"][name=\"' + name + '\"]');
+                    if (hidden) {
+                        const root = hidden.closest('div[x-data]');
+                        if (root) {
+                            let alpine = null;
+                            try {
+                                if (root._x_dataStack && root._x_dataStack[0]) alpine = root._x_dataStack[0];
+                                else if (window.Alpine && typeof Alpine.$data === 'function') alpine = Alpine.$data(root);
+                            } catch (_) {}
+                            if (alpine) {
+                                alpine.value = strVal;
+                                if (alpine.items && alpine.items[strVal] !== undefined) alpine._label = alpine.items[strVal];
+                                else alpine._label = strVal;
+                                hidden.value = strVal;
+                                // trigger @select-change di wizard
+                                hidden.dispatchEvent(new CustomEvent('select-change', { detail: { name, value: strVal }, bubbles: true }));
+                                root.dispatchEvent(new CustomEvent('select-change', { detail: { name, value: strVal }, bubbles: true }));
+                                if (name === 'kewarganegaraan') this.kewarganegaraan = strVal;
+                                return;
+                            }
+                        }
+                        hidden.value = strVal;
+                        hidden.dispatchEvent(new Event('change', { bubbles: true }));
+                        hidden.dispatchEvent(new CustomEvent('select-change', { detail: { name, value: strVal }, bubbles: true }));
+                        if (name === 'kewarganegaraan') this.kewarganegaraan = strVal;
+                        return;
+                    }
+                    // input / textarea / date / number biasa
+                    const el = document.querySelector('[name=\"' + name + '\"]');
+                    if (el) {
+                        el.value = strVal;
+                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (name === 'kewarganegaraan') this.kewarganegaraan = strVal;
+                    }
                 },
                 clearError(name) {
                     if (this.errors[name]) {
@@ -991,24 +1089,24 @@
                     try {
                         if (this.step === 1) {
                             if (!this.id) {
-                                console.log('POST /siswa (create)');
-                                const r = await this.send(1, 'POST', '/siswa');
+                                console.log('POST /mobile/siswa (create)');
+                                const r = await this.send(1, 'POST', '/mobile/siswa');
                                 console.log('POST success', r);
                                 this.id = r.id;
                                 localStorage.setItem('siswa_daftar_id', this.id);
                             } else {
                                 try {
-                                    console.log('PUT /siswa/' + this.id + ' (update)');
-                                    await this.send(1, 'PUT', '/siswa/' + this.id);
+                                    console.log('PUT /mobile/siswa/' + this.id + ' (update)');
+                                    await this.send(1, 'PUT', '/mobile/siswa/' + this.id);
                                 } catch (e) {
                                     console.log('PUT failed, retrying POST');
-                                    const r = await this.send(1, 'POST', '/siswa');
+                                    const r = await this.send(1, 'POST', '/mobile/siswa');
                                     this.id = r.id;
                                     localStorage.setItem('siswa_daftar_id', this.id);
                                 }
                             }
                         } else {
-                            await this.send(this.step, 'PUT', '/siswa/' + this.id);
+                            await this.send(this.step, 'PUT', '/mobile/siswa/' + this.id);
                         }
                         localStorage.setItem('siswa_daftar_step', String(this.step + 1));
                         this.step++;
@@ -1019,12 +1117,14 @@
                     if (this.step > 1) {
                         this.step--;
                         localStorage.setItem('siswa_daftar_step', String(this.step));
+                        // re-hydrate previous step data sudah ada di DOM setelah init, tidak perlu fetch ulang
+                        // tapi pastikan select yang ter-hide tetap terisi - hydration sudah dilakukan di init
                     }
                 },
                 async submit() {
                     if (!this.validate(this.step)) return;
                     try {
-                        await this.send(4, 'PUT', '/siswa/' + this.id);
+                        await this.send(4, 'PUT', '/mobile/siswa/' + this.id);
                         localStorage.removeItem('siswa_daftar_id');
                         localStorage.removeItem('siswa_daftar_step');
                         this.done = true;
