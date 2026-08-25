@@ -6,7 +6,6 @@ use App\Models\BeasiswaSiswa;
 use App\Models\OrangTua;
 use App\Models\PrestasiSiswa;
 use App\Models\Siswa;
-use App\Models\WaliSiswa;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
