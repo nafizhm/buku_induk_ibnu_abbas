@@ -85,16 +85,21 @@ Route::get('/paksa-logout', function () {
 
 
 Route::prefix('mobile')->group(function () {
-    Route::get('login', function () {
-        return view('mobile.login');
-    })->name('mobile.login');
+    Route::middleware('guest')->group(function () {
+        Route::get('login', function () {
+            return view('mobile.login');
+        })->name('mobile.login');
 
-    Route::controller(RegisterController::class)->group(function () {
-        Route::get('register', 'show')->name('mobile.register');
-        Route::post('register', 'store')->name('mobile.register.store');
-        Route::get('register/success', 'success')->name('mobile.register.success');
-        Route::get('register/siswa/{kelas}', 'getSiswa')->name('mobile.register.siswa');
+        Route::controller(RegisterController::class)->group(function () {
+            Route::get('register', 'show')->name('mobile.register');
+            Route::post('register', 'store')->name('mobile.register.store');
+            Route::get('register/siswa/{kelas}', 'getSiswa')->name('mobile.register.siswa');
+        });
     });
+
+    // Di luar guest: user baru otomatis login saat diarahkan ke halaman ini
+    Route::get('register/success', [RegisterController::class, 'success'])
+        ->name('mobile.register.success');
 
     Route::get('siswa/daftar', [MobileSiswaController::class, 'create'])->name('siswa.daftar.create');
 

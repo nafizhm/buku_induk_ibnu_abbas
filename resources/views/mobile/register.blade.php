@@ -104,22 +104,23 @@
                                         <x-select.trigger />
 
                                         <x-select.content>
-                                            <li x-show="loading"
-                                                class="px-2 py-1.5 text-sm text-muted-foreground list-none">
-                                                Memuat data siswa...
-                                            </li>
+                                            <x-select.group>
+                                                <li x-show="loading"
+                                                    class="px-2 py-1.5 text-sm text-muted-foreground list-none">
+                                                    Memuat data siswa...
+                                                </li>
 
-                                            <li x-show="!loading && !loaded"
-                                                class="px-2 py-1.5 text-sm text-muted-foreground list-none">
-                                                Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.
-                                            </li>
+                                                <li x-show="!loading && !loaded"
+                                                    class="px-2 py-1.5 text-sm text-muted-foreground list-none">
+                                                    Pilih kelas terlebih dahulu untuk menampilkan daftar siswa.
+                                                </li>
 
-                                            <li x-show="!loading && loaded && siswaList.length === 0"
-                                                class="px-2 py-1.5 text-sm text-muted-foreground list-none">
-                                                Tidak ada siswa aktif di kelas ini.
-                                            </li>
+                                                <li x-show="!loading && loaded && siswaList.length === 0"
+                                                    class="px-2 py-1.5 text-sm text-muted-foreground list-none">
+                                                    Tidak ada siswa aktif di kelas ini.
+                                                </li>
 
-                                            <template x-for="s in siswaList" :key="s.id">
+                                                <template x-for="s in siswaList" :key="s.id">
                                                 <li @click="select(s.id, s.nama_lengkap)"
                                                     x-effect="items[s.id] = s.nama_lengkap"
                                                     x-show="!(query) || s.nama_lengkap.toLowerCase().includes(query.toLowerCase())"
@@ -128,9 +129,8 @@
                                                     :data-value="s.id"
                                                     data-slot="select-item"
                                                     :data-size="size"
-                                                    class="relative flex w-full cursor-pointer items-center gap-1.5 rounded-md outline-hidden select-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                                                    class="relative flex w-full cursor-pointer items-center gap-1.5 rounded-md outline-hidden select-none py-2 pr-9 pl-2 text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
                                                     x-bind:class="{
-                                                        'py-2 pr-9 pl-2 text-sm': size === 'lg',
                                                         'bg-accent text-accent-foreground': active == s.id,
                                                     }">
                                                     <span class="flex flex-1 shrink-0 gap-2 whitespace-nowrap"
@@ -147,7 +147,8 @@
                                                         </svg>
                                                     </span>
                                                 </li>
-                                            </template>
+                                                </template>
+                                            </x-select.group>
                                         </x-select.content>
                                     </x-select>
 
