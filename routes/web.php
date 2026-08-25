@@ -14,6 +14,7 @@ use App\Http\Controllers\Siswa\CalonSiswaController;
 use App\Http\Controllers\Siswa\PendaftaranController;
 use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Mobile\RegisterController;
+use App\Http\Controllers\Mobile\OrangTuaPortalController;
 use App\Http\Controllers\Mobile\SiswaController as MobileSiswaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -110,6 +111,23 @@ Route::prefix('mobile')->group(function () {
 
     Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa')->name('siswa.daftar.update');
     Route::post('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
+
+    // Portal Orang Tua (butuh login; akun terhubung santri via tabel akun_siswa)
+    Route::middleware('auth')->name('orang-tua.')->group(function () {
+        Route::get('/', [OrangTuaPortalController::class, 'beranda'])->name('beranda');
+        Route::get('presensi', [OrangTuaPortalController::class, 'presensi'])->name('presensi');
+        Route::get('kegiatan', [OrangTuaPortalController::class, 'kegiatan'])->name('kegiatan');
+        Route::get('hafalan', [OrangTuaPortalController::class, 'hafalan'])->name('hafalan');
+        Route::get('profil', [OrangTuaPortalController::class, 'profil'])->name('profil');
+        Route::post('profil/{section}', [OrangTuaPortalController::class, 'updateProfil'])
+            ->whereIn('section', ['siswa', 'ayah', 'ibu', 'wali'])->name('profil.update');
+        Route::post('lampiran', [OrangTuaPortalController::class, 'uploadLampiran'])->name('lampiran.upload');
+        Route::get('lampiran/{lampiran}', [OrangTuaPortalController::class, 'viewLampiran'])
+            ->whereNumber('lampiran')->name('lampiran.view');
+        Route::delete('lampiran/{lampiran}', [OrangTuaPortalController::class, 'deleteLampiran'])
+            ->whereNumber('lampiran')->name('lampiran.delete');
+        Route::post('logout', [OrangTuaPortalController::class, 'logout'])->name('logout');
+    });
 });
 
 // Alias tanpa prefix mobile untuk kompatibilitas JS lama yang fetch ke /siswa

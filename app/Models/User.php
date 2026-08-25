@@ -46,4 +46,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function siswa()
+    {
+        return $this->belongsToMany(Siswa::class, 'akun_siswa', 'user_id', 'siswa_id')
+            ->withPivot('hubungan');
+    }
 }

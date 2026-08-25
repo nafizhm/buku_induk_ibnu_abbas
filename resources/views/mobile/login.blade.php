@@ -49,7 +49,7 @@
                                     })
                                         .then(async res => {
                                             if (res.ok) {
-                                                window.location.href = '{{ url('/') }}'
+                                                window.location.href = '{{ route('orang-tua.beranda') }}'
                                                 return
                                             }
                                             const json = await res.json()
