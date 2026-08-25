@@ -27,10 +27,26 @@
                         </div>
 
                         {{-- Register Form --}}
-                        <form method="POST" action="{{ route('mobile.register') }}" class="space-y-2" x-data="{ pw: '', pw2: '' }">
+                        <form method="POST" action="{{ route('mobile.register') }}" class="space-y-2" x-data="{ pw: '', pw2: '', role: 'ayah' }">
                             @csrf
 
+                            <input type="hidden" name="peran" :value="role">
+
                             <div class="space-y-2">
+
+                                {{-- Tab Ayah / Ibu --}}
+                                <div class="flex rounded-lg border border-border bg-muted p-0.5">
+                                    <button type="button" @click="role = 'ayah'"
+                                        class="flex-1 rounded-md py-2 text-sm font-medium transition-colors"
+                                        :class="role === 'ayah' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+                                        Ayah
+                                    </button>
+                                    <button type="button" @click="role = 'ibu'"
+                                        class="flex-1 rounded-md py-2 text-sm font-medium transition-colors"
+                                        :class="role === 'ibu' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+                                        Ibu
+                                    </button>
+                                </div>
 
                                 {{-- Kelas --}}
                                 <div class="space-y-2">
@@ -76,10 +92,10 @@
                                     </x-select>
                                 </div>
 
-                                {{-- No. Telp Ayah/Ibu --}}
+                                {{-- No. Telp --}}
                                 <div class="space-y-2">
                                     <label for="phone" class="text-sm leading-none">
-                                        No. Telepon Ayah/Ibu
+                                        No. Telepon <span x-text="role === 'ayah' ? 'Ayah' : 'Ibu'"></span>
                                     </label>
 
                                     <x-input id="phone" type="tel" name="phone" autocomplete="tel"
