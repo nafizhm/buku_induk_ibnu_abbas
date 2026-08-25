@@ -1041,11 +1041,18 @@
                     const fd = this.collect(step);
                     if (step === 4) fd.append('_selesai', '1');
                     fd.append('_token', this.token());
-                    console.log('SEND', method, url);
+                    // Laravel tidak parsing multipart pada PUT murni (PHP tidak isi $_POST),
+                    // jadi spoof method via POST + _method agar FormData terbaca
+                    let fetchMethod = method;
+                    if (method === 'PUT') {
+                        fd.append('_method', 'PUT');
+                        fetchMethod = 'POST';
+                    }
+                    console.log('SEND', method, url, fetchMethod === 'POST' ? '(spoofed POST)' : '');
                     for (const [k, v] of fd.entries()) console.log('  ', k, '=', v);
                     try {
                         const res = await fetch(url, {
-                            method,
+                            method: fetchMethod,
                             headers: {
                                 'X-CSRF-TOKEN': this.token(),
                                 'Accept': 'application/json',

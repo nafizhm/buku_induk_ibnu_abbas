@@ -306,9 +306,14 @@ class SiswaController extends Controller
 
     private function syncOrangTua(Siswa $siswa, array $d): void
     {
-        if (!array_filter([
-            $d['ayah_nama'] ?? null, $d['ibu_nama'] ?? null, $d['wali_nama'] ?? null,
-        ])) {
+        // Step 2 mengirim banyak field ayah/ibu/wali; jangan hanya cek nama,
+        // cek apakah ada field ayah_*/ibu_*/wali_* yang terisi agar data tidak hilang saat refresh
+        $familyKeys = array_filter(array_keys($d), fn($k) => str_starts_with($k, 'ayah_') || str_starts_with($k, 'ibu_') || str_starts_with($k, 'wali_'));
+        $hasValue = false;
+        foreach ($familyKeys as $k) {
+            if (isset($d[$k]) && $d[$k] !== '' && $d[$k] !== null) { $hasValue = true; break; }
+        }
+        if (!$hasValue) {
             return;
         }
 

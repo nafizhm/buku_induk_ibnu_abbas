@@ -108,9 +108,11 @@ Route::prefix('mobile')->group(function () {
     Route::get('siswa/{siswa}', [MobileSiswaController::class, 'show'])->whereNumber('siswa')->name('siswa.daftar.show');
 
     Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa')->name('siswa.daftar.update');
+    Route::post('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
 });
 
 // Alias tanpa prefix mobile untuk kompatibilitas JS lama yang fetch ke /siswa
 Route::post('siswa', [MobileSiswaController::class, 'store']);
 Route::get('siswa/{siswa}', [MobileSiswaController::class, 'show'])->whereNumber('siswa');
 Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
+Route::post('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
