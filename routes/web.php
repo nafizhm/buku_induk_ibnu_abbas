@@ -102,6 +102,7 @@ Route::prefix('mobile')->group(function () {
         ->name('mobile.register.success');
 
     Route::get('siswa/daftar', [MobileSiswaController::class, 'create'])->name('siswa.daftar.create');
+    Route::get('siswa/success', [MobileSiswaController::class, 'success'])->name('siswa.daftar.success');
 
     Route::post('siswa', [MobileSiswaController::class, 'store'])->name('siswa.daftar.store');
 

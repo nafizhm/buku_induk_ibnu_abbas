@@ -34,7 +34,12 @@ class RegisterController extends Controller
 
     public function success(): View
     {
-        return view('mobile.register-success');
+        return view('mobile.success', [
+            'title' => 'Akun Berhasil Dibuat',
+            'description' => 'Akun orang tua kamu sudah aktif. Gunakan nomor telepon sebagai username untuk masuk.',
+            'primaryLabel' => 'Masuk Sekarang',
+            'primaryUrl' => route('mobile.login'),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse

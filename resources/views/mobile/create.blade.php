@@ -846,7 +846,7 @@
                         </div>
 
                         {{-- ================= NAVIGASI ================= --}}
-                        <div class="flex items-center justify-between gap-3 pt-1" x-show="!done">
+                        <div class="flex items-center justify-between gap-3 pt-1">
                             <x-button type="button" variant="outline" x-show="step > 1" @click="back()" x-bind:disabled="saving">
                                 Kembali
                             </x-button>
@@ -867,10 +867,6 @@
                             </div>
                         </div>
 
-                        <div x-show="done" x-cloak class="rounded-lg border border-green-200 bg-green-50 p-5 text-center text-sm text-green-800">
-                            Pendaftaran berhasil disimpan. Terima kasih.
-                        </div>
-
                     </form>
                 </div>
             </div>
@@ -886,7 +882,6 @@
                 loadingHydrate: false,
                 error: '',
                 errors: {},
-                done: false,
                 async init() {
                     this.id = localStorage.getItem('siswa_daftar_id') || null;
                     const s = parseInt(localStorage.getItem('siswa_daftar_step') || '1', 10);
@@ -1134,7 +1129,7 @@
                         await this.send(4, 'PUT', '/mobile/siswa/' + this.id);
                         localStorage.removeItem('siswa_daftar_id');
                         localStorage.removeItem('siswa_daftar_step');
-                        this.done = true;
+                        window.location.href = "{{ route('siswa.daftar.success') }}";
                     } catch (e) { /* error sudah di-set */ }
                 },
             };

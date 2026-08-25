@@ -16,6 +16,18 @@ class SiswaController extends Controller
         return view('mobile.create');
     }
 
+    public function success()
+    {
+        return view('mobile.success', [
+            'title' => 'Pendaftaran Berhasil',
+            'description' => 'Data siswa berhasil disimpan. Terima kasih telah melengkapi pendaftaran peserta didik.',
+            'primaryLabel' => 'Kembali ke Beranda',
+            'primaryUrl' => url('/'),
+            'secondaryLabel' => 'Daftar Lagi',
+            'secondaryUrl' => route('siswa.daftar.create'),
+        ]);
+    }
+
     public function show(Siswa $siswa)
     {
         $siswa->load(['orangTua', 'prestasi', 'beasiswa']);

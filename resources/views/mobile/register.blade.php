@@ -60,12 +60,14 @@
                                 <div class="flex rounded-lg border border-border bg-muted p-0.5">
                                     <button type="button" @click="role = 'ayah'"
                                         class="flex-1 rounded-md py-2 text-sm font-medium transition-colors"
-                                        :class="role === 'ayah' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+                                        :class="role === 'ayah' ? 'bg-background text-foreground shadow-sm' :
+                                            'text-muted-foreground hover:text-foreground'">
                                         Ayah
                                     </button>
                                     <button type="button" @click="role = 'ibu'"
                                         class="flex-1 rounded-md py-2 text-sm font-medium transition-colors"
-                                        :class="role === 'ibu' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+                                        :class="role === 'ibu' ? 'bg-background text-foreground shadow-sm' :
+                                            'text-muted-foreground hover:text-foreground'">
                                         Ibu
                                     </button>
                                 </div>
@@ -83,8 +85,7 @@
                                                 <x-select.label>Kelas</x-select.label>
 
                                                 @foreach ($kelas as $k)
-                                                    <x-select.item value="{{ $k->id_kelas }}"
-                                                        label="{{ $k->nama_kelas }}">
+                                                    <x-select.item value="{{ $k->id_kelas }}" label="{{ $k->nama_kelas }}">
                                                         {{ $k->nama_kelas }}
                                                     </x-select.item>
                                                 @endforeach
@@ -96,7 +97,7 @@
                                 {{-- Siswa (multi pilih) --}}
                                 <div class="space-y-2">
                                     <label class="text-sm leading-none">
-                                        Anak <span class="text-muted-foreground">(boleh pilih lebih dari satu)</span>
+                                        Siswa <span class="text-muted-foreground">(boleh pilih lebih dari satu)</span>
                                     </label>
 
                                     <x-select name="siswa_ids" size="lg" searchable multiple
@@ -121,32 +122,30 @@
                                                 </li>
 
                                                 <template x-for="s in siswaList" :key="s.id">
-                                                <li @click="select(s.id, s.nama_lengkap)"
-                                                    x-effect="items[s.id] = s.nama_lengkap"
-                                                    x-show="!(query) || s.nama_lengkap.toLowerCase().includes(query.toLowerCase())"
-                                                    role="option"
-                                                    :aria-selected="value.includes(s.id)"
-                                                    :data-value="s.id"
-                                                    data-slot="select-item"
-                                                    :data-size="size"
-                                                    class="relative flex w-full cursor-pointer items-center gap-1.5 rounded-md outline-hidden select-none py-2 pr-9 pl-2 text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-                                                    x-bind:class="{
-                                                        'bg-accent text-accent-foreground': active == s.id,
-                                                    }">
-                                                    <span class="flex flex-1 shrink-0 gap-2 whitespace-nowrap"
-                                                        x-text="s.nama_lengkap"></span>
+                                                    <li @click="select(s.id, s.nama_lengkap)"
+                                                        x-effect="items[s.id] = s.nama_lengkap"
+                                                        x-show="!(query) || s.nama_lengkap.toLowerCase().includes(query.toLowerCase())"
+                                                        role="option" :aria-selected="value.includes(s.id)"
+                                                        :data-value="s.id" data-slot="select-item"
+                                                        :data-size="size"
+                                                        class="relative flex w-full cursor-pointer items-center gap-1.5 rounded-md outline-hidden select-none py-2 pr-9 pl-2 text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                                                        x-bind:class="{
+                                                            'bg-accent text-accent-foreground': active == s.id,
+                                                        }">
+                                                        <span class="flex flex-1 shrink-0 gap-2 whitespace-nowrap"
+                                                            x-text="s.nama_lengkap"></span>
 
-                                                    <span
-                                                        class="pointer-events-none absolute right-2 flex size-4 items-center justify-center"
-                                                        x-show="value.includes(s.id)">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                            fill="none" stroke="currentColor" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round"
-                                                            class="size-4">
-                                                            <path d="M20 6L9 17l-5-5" />
-                                                        </svg>
-                                                    </span>
-                                                </li>
+                                                        <span
+                                                            class="pointer-events-none absolute right-2 flex size-4 items-center justify-center"
+                                                            x-show="value.includes(s.id)">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                class="size-4">
+                                                                <path d="M20 6L9 17l-5-5" />
+                                                            </svg>
+                                                        </span>
+                                                    </li>
                                                 </template>
                                             </x-select.group>
                                         </x-select.content>
@@ -175,8 +174,8 @@
                                 <div class="space-y-2">
                                     <label for="password" class="text-sm leading-none">Password</label>
 
-                                    <x-password id="password" name="password" x-model="pw"
-                                        autocomplete="new-password" placeholder="Masukkan password" required />
+                                    <x-password id="password" name="password" x-model="pw" autocomplete="new-password"
+                                        placeholder="Masukkan password" required />
                                 </div>
 
                                 {{-- Konfirmasi Password --}}
@@ -202,7 +201,7 @@
 
                                 {{-- Submit --}}
                                 <div>
-                                    <x-button type="submit" class="w-full">
+                                    <x-button type="submit" class="w-full mt-4">
                                         Daftar
                                     </x-button>
                                 </div>
