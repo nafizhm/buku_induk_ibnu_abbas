@@ -41,10 +41,10 @@ class OrangTuaPortalController extends Controller
 
     public function profil(Request $request)
     {
-        $form = $request->query('form');
+        $form = $request->query('form') ?? $request->query('tab');
 
         return $this->portalView('profil', [
-            'profileForm' => in_array($form, ['siswa', 'ayah', 'ibu', 'wali'], true) ? $form : null,
+            'profileForm' => in_array($form, ['siswa', 'ayah', 'ibu', 'wali', 'berkas'], true) ? $form : null,
             'profileSummary' => $this->profileSummary(),
         ]);
     }
@@ -84,7 +84,7 @@ class OrangTuaPortalController extends Controller
         $file = $request->file('file');
         $path = $file->store('lampiran-siswa/' . $siswa->id, 'public');
 
-        LampiranSiswa::updateOrCreate(
+        $lampiran = LampiranSiswa::updateOrCreate(
             ['siswa_id' => $siswa->id, 'jenis_dokumen' => $validated['jenis_dokumen']],
             [
                 'path' => $path,
@@ -94,7 +94,16 @@ class OrangTuaPortalController extends Controller
             ]
         );
 
-        return response()->json(['message' => 'Lampiran berhasil diunggah.', 'ok' => true]);
+        return response()->json([
+            'message' => 'Lampiran berhasil diunggah.',
+            'ok' => true,
+            'file' => [
+                'id' => $lampiran->id,
+                'nama_asli' => $lampiran->nama_asli,
+                'view_url' => route('orang-tua.lampiran.view', $lampiran->id),
+                'delete_url' => route('orang-tua.lampiran.delete', $lampiran->id),
+            ],
+        ]);
     }
 
     public function viewLampiran(LampiranSiswa $lampiran)

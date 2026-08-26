@@ -145,60 +145,172 @@
     }));
   }
 
-  // ---------- Lampiran ----------
+  // ---------- Lampiran (dropzone realtime, tanpa submit) ----------
   function initLampiran() {
-    document.querySelectorAll('.portal-file-input').forEach(input => input.addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
-      const row = this.closest('.portal-file-row');
+    function updateRowToDone(row, fileName, viewUrl, deleteUrl, isImage) {
+      row.classList.add('done');
+      row.classList.remove('uploading');
+      if (isImage) row.classList.add('has-preview'); else row.classList.remove('has-preview');
+      let preview = row.querySelector('.dropzone-preview');
+      let overlay = row.querySelector('.dropzone-preview-overlay');
+      if (isImage) {
+        if (!preview) {
+          preview = document.createElement('img');
+          preview.className = 'dropzone-preview';
+          preview.alt = fileName;
+          row.insertBefore(preview, row.firstChild);
+        }
+        preview.src = viewUrl;
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'dropzone-preview-overlay';
+          preview.after(overlay);
+        }
+      } else {
+        if (preview) preview.remove();
+        if (overlay) overlay.remove();
+        row.classList.remove('has-preview');
+      }
+      const icon = row.querySelector('.file-icon');
+      if (icon) {
+        icon.classList.add('done');
+        icon.textContent = '✓';
+        icon.style.display = isImage ? 'none' : '';
+      }
+      const status = row.querySelector('.f-status');
+      if (status) { status.classList.add('done'); status.textContent = fileName; }
+      const hint = row.querySelector('.f-hint');
+      if (hint) hint.textContent = 'Tersimpan · klik untuk ganti';
+      let delBtn = row.querySelector('.dropzone-remove');
+      if (!delBtn) {
+        delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'dropzone-remove portal-file-delete';
+        delBtn.setAttribute('aria-label', 'Hapus');
+        delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+        row.appendChild(delBtn);
+      }
+      delBtn.dataset.url = deleteUrl;
+      delBtn.style.display = 'grid';
+    }
+
+    function updateRowToEmpty(row) {
+      row.classList.remove('done', 'uploading', 'dragover', 'has-preview');
+      const preview = row.querySelector('.dropzone-preview');
+      if (preview) preview.remove();
+      const overlay = row.querySelector('.dropzone-preview-overlay');
+      if (overlay) overlay.remove();
+      const icon = row.querySelector('.file-icon');
+      if (icon) { icon.classList.remove('done'); icon.textContent = '+'; icon.style.display = ''; }
+      const status = row.querySelector('.f-status');
+      if (status) { status.classList.remove('done'); status.textContent = 'Seret file ke sini atau klik'; }
+      const hint = row.querySelector('.f-hint');
+      if (hint) hint.textContent = 'JPG, PNG, PDF · maks 5MB';
+      const delBtn = row.querySelector('.dropzone-remove');
+      if (delBtn) delBtn.remove();
+      const viewBtn = row.querySelector('.portal-file-view');
+      if (viewBtn) viewBtn.remove();
+      const oldDel = row.querySelector('.portal-file-delete:not(.dropzone-remove)');
+      if (oldDel) oldDel.remove();
+    }
+
+    function uploadFile(file, row) {
+      const max = 5 * 1024 * 1024;
+      if (file.size > max) { toastr.error('File terlalu besar, maks 5MB.'); return; }
+      if (!/^(image\/|application\/pdf)/.test(file.type) && !/\.(jpg|jpeg|png|pdf)$/i.test(file.name)) {
+        toastr.error('Format harus JPG, PNG, atau PDF.');
+        return;
+      }
       const data = new FormData();
       data.append('_token', CSRF);
       data.append('jenis_dokumen', row.dataset.kind);
       data.append('file', file);
-      this.disabled = true;
-      document.getElementById('pageLoading').classList.add('show');
+      row.classList.add('uploading');
+      row.classList.remove('dragover');
 
       fetch(routeMap.lampiranUpload, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } })
         .then(async response => {
           const result = await response.json();
           if (!response.ok) throw result;
+          const f = result.file || {};
+          const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png)$/i.test(file.name);
+          updateRowToDone(row, f.nama_asli || file.name, f.view_url || '', f.delete_url || '', isImage);
           toastr.success(result.message || 'Lampiran berhasil diunggah.');
-          setTimeout(() => window.location.reload(), 500);
         })
         .catch(error => {
-          document.getElementById('pageLoading').classList.remove('show');
-          this.disabled = false;
+          row.classList.remove('uploading');
           toastr.error(error?.message || Object.values(error?.errors || {}).flat()[0] || 'Upload gagal.');
         });
-    }));
+    }
 
-    document.querySelectorAll('.portal-file-view').forEach(button => button.addEventListener('click', function () {
-      const modal = document.getElementById('portalFileModal');
-      document.getElementById('portalFileFrame').src = this.dataset.url;
-      modal.classList.add('show');
-    }));
+    document.querySelectorAll('.portal-file-row.dropzone').forEach(row => {
+      const input = row.querySelector('.portal-file-input');
+      const trigger = row.querySelector('.portal-file-trigger');
+
+      row.addEventListener('click', e => {
+        if (e.target.closest('.portal-file-view') || e.target.closest('.portal-file-delete')) return;
+        input.click();
+      });
+      if (trigger) trigger.addEventListener('click', e => { e.stopPropagation(); input.click(); });
+
+      input.addEventListener('change', () => {
+        if (input.files[0]) uploadFile(input.files[0], row);
+        input.value = '';
+      });
+
+      row.addEventListener('dragover', e => { e.preventDefault(); row.classList.add('dragover'); });
+      row.addEventListener('dragleave', e => {
+        if (!row.contains(e.relatedTarget)) row.classList.remove('dragover');
+      });
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        row.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) uploadFile(file, row);
+      });
+    });
+
+    // delegated view / delete (mendukung elemen yang baru dibuat realtime)
+    document.addEventListener('click', e => {
+      const view = e.target.closest('.portal-file-view');
+      if (view) {
+        e.stopPropagation();
+        const modal = document.getElementById('portalFileModal');
+        document.getElementById('portalFileFrame').src = view.dataset.url;
+        modal.classList.add('show');
+        return;
+      }
+      const del = e.target.closest('.portal-file-delete');
+      if (del) {
+        e.stopPropagation();
+        if (!confirm('Hapus lampiran ini?')) return;
+        const row = del.closest('.portal-file-row');
+        del.disabled = true;
+        fetch(del.dataset.url, {
+          method: 'DELETE',
+          headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
+        }).then(async response => {
+          const result = await response.json();
+          if (!response.ok) throw result;
+          updateRowToEmpty(row);
+          toastr.success(result.message || 'Lampiran dihapus.');
+        }).catch(error => {
+          toastr.error(error?.message || 'Gagal menghapus lampiran.');
+        }).finally(() => { del.disabled = false; });
+      }
+    });
+
     document.querySelector('#portalFileModal .btn-close')?.addEventListener('click', function () {
       const modal = document.getElementById('portalFileModal');
       modal.classList.remove('show');
       document.getElementById('portalFileFrame').src = 'about:blank';
     });
-
-    document.querySelectorAll('.portal-file-delete').forEach(button => button.addEventListener('click', function () {
-      if (!confirm('Hapus lampiran ini?')) return;
-      document.getElementById('pageLoading').classList.add('show');
-      fetch(this.dataset.url, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }
-      }).then(async response => {
-        const result = await response.json();
-        if (!response.ok) throw result;
-        toastr.success(result.message);
-        setTimeout(() => window.location.reload(), 500);
-      }).catch(error => {
-        document.getElementById('pageLoading').classList.remove('show');
-        toastr.error(error?.message || 'Gagal menghapus lampiran.');
-      });
-    }));
+    document.getElementById('portalFileModal')?.addEventListener('click', function (e) {
+      if (e.target === this) {
+        this.classList.remove('show');
+        document.getElementById('portalFileFrame').src = 'about:blank';
+      }
+    });
   }
 
   // ---------- Kalender ----------

@@ -96,7 +96,7 @@
 
                                 <div class="{{ $field }}">
                                     <label class="{{ $lbl }}">Agama &amp; Kepercayaan</label>
-                                    <x-select name="agama" size="lg" placeholder="Pilih agama..." value="{{ old('agama') }}">
+                                    <x-select name="agama" size="lg" placeholder="Pilih agama..." value="{{ old('agama', 'Islam') }}">
                                         <x-select.trigger />
                                         <x-select.content>
                                             <x-select.group>
@@ -260,8 +260,18 @@
                                 <h3 class="text-xs font-semibold uppercase tracking-wide text-neutral-500">Lainnya</h3>
 
                                 <div class="{{ $field }}">
-                                    <label for="anak_ke" class="{{ $lbl }}">Anak ke-berapa</label>
-                                    <x-input id="anak_ke" name="anak_ke" type="number" min="1" placeholder="Urutan anak" value="{{ old('anak_ke') }}" />
+                                    <label class="{{ $lbl }}">Anak ke-berapa</label>
+                                    <x-select name="anak_ke" size="lg" placeholder="Pilih urutan anak..." value="{{ old('anak_ke') }}">
+                                        <x-select.trigger />
+                                        <x-select.content>
+                                            <x-select.group>
+                                                <x-select.label>Anak ke-berapa</x-select.label>
+                                                @for ($i = 1; $i <= 15; $i++)
+                                                    <x-select.item value="{{ $i }}">{{ $i }}</x-select.item>
+                                                @endfor
+                                            </x-select.group>
+                                        </x-select.content>
+                                    </x-select>
                                     <p x-show="errors.anak_ke" class="{{ $err }}" x-text="errors.anak_ke"></p>
                                 </div>
 
@@ -350,17 +360,17 @@
 
                                 <div class="{{ $field }}">
                                     <label for="ayah_nama" class="{{ $lbl }}">Nama</label>
-                                    <x-input id="ayah_nama" name="ayah_nama" type="text" value="{{ old('ayah_nama') }}" />
+                                    <x-input id="ayah_nama" name="ayah_nama" type="text" placeholder="Nama lengkap ayah" value="{{ old('ayah_nama') }}" />
                                     <p x-show="errors.ayah_nama" class="{{ $err }}" x-text="errors.ayah_nama"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="ayah_nik" class="{{ $lbl }}">NIK</label>
-                                    <x-input id="ayah_nik" name="ayah_nik" type="text" inputmode="numeric" value="{{ old('ayah_nik') }}" />
+                                    <x-input id="ayah_nik" name="ayah_nik" type="text" inputmode="numeric" placeholder="16 digit NIK ayah" value="{{ old('ayah_nik') }}" />
                                     <p x-show="errors.ayah_nik" class="{{ $err }}" x-text="errors.ayah_nik"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="ayah_tahun_lahir" class="{{ $lbl }}">Tahun Lahir</label>
-                                    <x-input id="ayah_tahun_lahir" name="ayah_tahun_lahir" type="number" min="1900" max="2099" value="{{ old('ayah_tahun_lahir') }}" />
+                                    <x-input id="ayah_tahun_lahir" name="ayah_tahun_lahir" type="number" min="1900" max="2099" placeholder="Contoh: 1985" value="{{ old('ayah_tahun_lahir') }}" />
                                     <p x-show="errors.ayah_tahun_lahir" class="{{ $err }}" x-text="errors.ayah_tahun_lahir"></p>
                                 </div>
                                 <div class="{{ $field }}">
@@ -414,11 +424,11 @@
                                             <x-select.group>
                                                 <x-select.label>Penghasilan Bulanan</x-select.label>
                                                 <x-select.item value="Tidak Berpenghasilan">Tidak Berpenghasilan</x-select.item>
-                                                <x-select.item value="&lt; 500.000">&lt; 500.000</x-select.item>
+                                                <x-select.item value="< 500.000" label="< 500.000">< 500.000</x-select.item>
                                                 <x-select.item value="500.000 - 1.000.000">500.000 - 1.000.000</x-select.item>
                                                 <x-select.item value="1.000.000 - 2.000.000">1.000.000 - 2.000.000</x-select.item>
                                                 <x-select.item value="2.000.000 - 5.000.000">2.000.000 - 5.000.000</x-select.item>
-                                                <x-select.item value="&gt; 5.000.000">&gt; 5.000.000</x-select.item>
+                                                <x-select.item value="> 5.000.000" label="> 5.000.000">> 5.000.000</x-select.item>
                                             </x-select.group>
                                         </x-select.content>
                                     </x-select>
@@ -448,17 +458,17 @@
 
                                 <div class="{{ $field }}">
                                     <label for="ibu_nama" class="{{ $lbl }}">Nama</label>
-                                    <x-input id="ibu_nama" name="ibu_nama" type="text" value="{{ old('ibu_nama') }}" />
+                                    <x-input id="ibu_nama" name="ibu_nama" type="text" placeholder="Nama lengkap ibu" value="{{ old('ibu_nama') }}" />
                                     <p x-show="errors.ibu_nama" class="{{ $err }}" x-text="errors.ibu_nama"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="ibu_nik" class="{{ $lbl }}">NIK</label>
-                                    <x-input id="ibu_nik" name="ibu_nik" type="text" inputmode="numeric" value="{{ old('ibu_nik') }}" />
+                                    <x-input id="ibu_nik" name="ibu_nik" type="text" inputmode="numeric" placeholder="16 digit NIK ibu" value="{{ old('ibu_nik') }}" />
                                     <p x-show="errors.ibu_nik" class="{{ $err }}" x-text="errors.ibu_nik"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="ibu_tahun_lahir" class="{{ $lbl }}">Tahun Lahir</label>
-                                    <x-input id="ibu_tahun_lahir" name="ibu_tahun_lahir" type="number" min="1900" max="2099" value="{{ old('ibu_tahun_lahir') }}" />
+                                    <x-input id="ibu_tahun_lahir" name="ibu_tahun_lahir" type="number" min="1900" max="2099" placeholder="Contoh: 1990" value="{{ old('ibu_tahun_lahir') }}" />
                                     <p x-show="errors.ibu_tahun_lahir" class="{{ $err }}" x-text="errors.ibu_tahun_lahir"></p>
                                 </div>
                                 <div class="{{ $field }}">
@@ -512,11 +522,11 @@
                                             <x-select.group>
                                                 <x-select.label>Penghasilan Bulanan</x-select.label>
                                                 <x-select.item value="Tidak Berpenghasilan">Tidak Berpenghasilan</x-select.item>
-                                                <x-select.item value="&lt; 500.000">&lt; 500.000</x-select.item>
+                                                <x-select.item value="< 500.000" label="< 500.000">< 500.000</x-select.item>
                                                 <x-select.item value="500.000 - 1.000.000">500.000 - 1.000.000</x-select.item>
                                                 <x-select.item value="1.000.000 - 2.000.000">1.000.000 - 2.000.000</x-select.item>
                                                 <x-select.item value="2.000.000 - 5.000.000">2.000.000 - 5.000.000</x-select.item>
-                                                <x-select.item value="&gt; 5.000.000">&gt; 5.000.000</x-select.item>
+                                                <x-select.item value="> 5.000.000" label="> 5.000.000">> 5.000.000</x-select.item>
                                             </x-select.group>
                                         </x-select.content>
                                     </x-select>
@@ -546,17 +556,17 @@
 
                                 <div class="{{ $field }}">
                                     <label for="wali_nama" class="{{ $lbl }}">Nama</label>
-                                    <x-input id="wali_nama" name="wali_nama" type="text" value="{{ old('wali_nama') }}" />
+                                    <x-input id="wali_nama" name="wali_nama" type="text" placeholder="Nama lengkap wali" value="{{ old('wali_nama') }}" />
                                     <p x-show="errors.wali_nama" class="{{ $err }}" x-text="errors.wali_nama"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="wali_nik" class="{{ $lbl }}">NIK</label>
-                                    <x-input id="wali_nik" name="wali_nik" type="text" inputmode="numeric" value="{{ old('wali_nik') }}" />
+                                    <x-input id="wali_nik" name="wali_nik" type="text" inputmode="numeric" placeholder="16 digit NIK wali" value="{{ old('wali_nik') }}" />
                                     <p x-show="errors.wali_nik" class="{{ $err }}" x-text="errors.wali_nik"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="wali_tahun_lahir" class="{{ $lbl }}">Tahun Lahir</label>
-                                    <x-input id="wali_tahun_lahir" name="wali_tahun_lahir" type="number" min="1900" max="2099" value="{{ old('wali_tahun_lahir') }}" />
+                                    <x-input id="wali_tahun_lahir" name="wali_tahun_lahir" type="number" min="1900" max="2099" placeholder="Contoh: 1980" value="{{ old('wali_tahun_lahir') }}" />
                                     <p x-show="errors.wali_tahun_lahir" class="{{ $err }}" x-text="errors.wali_tahun_lahir"></p>
                                 </div>
                                 <div class="{{ $field }}">
@@ -610,11 +620,11 @@
                                             <x-select.group>
                                                 <x-select.label>Penghasilan Bulanan</x-select.label>
                                                 <x-select.item value="Tidak Berpenghasilan">Tidak Berpenghasilan</x-select.item>
-                                                <x-select.item value="&lt; 500.000">&lt; 500.000</x-select.item>
+                                                <x-select.item value="< 500.000" label="< 500.000">< 500.000</x-select.item>
                                                 <x-select.item value="500.000 - 1.000.000">500.000 - 1.000.000</x-select.item>
                                                 <x-select.item value="1.000.000 - 2.000.000">1.000.000 - 2.000.000</x-select.item>
                                                 <x-select.item value="2.000.000 - 5.000.000">2.000.000 - 5.000.000</x-select.item>
-                                                <x-select.item value="&gt; 5.000.000">&gt; 5.000.000</x-select.item>
+                                                <x-select.item value="> 5.000.000" label="> 5.000.000">> 5.000.000</x-select.item>
                                             </x-select.group>
                                         </x-select.content>
                                     </x-select>
@@ -633,17 +643,17 @@
                                 <div class="grid grid-cols-3 gap-3">
                                     <div class="{{ $field }}">
                                         <label for="tinggi_badan" class="{{ $lbl }}">Tinggi (cm)</label>
-                                        <x-input id="tinggi_badan" name="tinggi_badan" type="number" step="0.1" value="{{ old('tinggi_badan') }}" />
+                                        <x-input id="tinggi_badan" name="tinggi_badan" type="number" step="0.1" placeholder="Contoh: 150" value="{{ old('tinggi_badan') }}" />
                                         <p x-show="errors.tinggi_badan" class="{{ $err }}" x-text="errors.tinggi_badan"></p>
                                     </div>
                                     <div class="{{ $field }}">
                                         <label for="berat_badan" class="{{ $lbl }}">Berat (kg)</label>
-                                        <x-input id="berat_badan" name="berat_badan" type="number" step="0.1" value="{{ old('berat_badan') }}" />
+                                        <x-input id="berat_badan" name="berat_badan" type="number" step="0.1" placeholder="Contoh: 40" value="{{ old('berat_badan') }}" />
                                         <p x-show="errors.berat_badan" class="{{ $err }}" x-text="errors.berat_badan"></p>
                                     </div>
                                     <div class="{{ $field }}">
                                         <label for="lingkar_kepala" class="{{ $lbl }}">Lingkar Kepala (cm)</label>
-                                        <x-input id="lingkar_kepala" name="lingkar_kepala" type="number" step="0.1" value="{{ old('lingkar_kepala') }}" />
+                                        <x-input id="lingkar_kepala" name="lingkar_kepala" type="number" step="0.1" placeholder="Contoh: 52" value="{{ old('lingkar_kepala') }}" />
                                         <p x-show="errors.lingkar_kepala" class="{{ $err }}" x-text="errors.lingkar_kepala"></p>
                                     </div>
                                 </div>
@@ -657,19 +667,19 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="{{ $field }}">
                                         <label for="waktu_jam" class="{{ $lbl }}">Waktu Tempuh (Jam)</label>
-                                        <x-input id="waktu_jam" name="waktu_jam" type="number" min="0" value="{{ old('waktu_jam') }}" />
+                                        <x-input id="waktu_jam" name="waktu_jam" type="number" min="0" placeholder="0" value="{{ old('waktu_jam') }}" />
                                         <p x-show="errors.waktu_jam" class="{{ $err }}" x-text="errors.waktu_jam"></p>
                                     </div>
                                     <div class="{{ $field }}">
                                         <label for="waktu_menit" class="{{ $lbl }}">Waktu Tempuh (Menit)</label>
-                                        <x-input id="waktu_menit" name="waktu_menit" type="number" min="0" max="59" value="{{ old('waktu_menit') }}" />
+                                        <x-input id="waktu_menit" name="waktu_menit" type="number" min="0" max="59" placeholder="0" value="{{ old('waktu_menit') }}" />
                                         <p x-show="errors.waktu_menit" class="{{ $err }}" x-text="errors.waktu_menit"></p>
                                     </div>
                                 </div>
 
                                 <div class="{{ $field }}">
                                     <label for="jumlah_saudara" class="{{ $lbl }}">Jumlah Saudara Kandung</label>
-                                    <x-input id="jumlah_saudara" name="jumlah_saudara" type="number" min="0" value="{{ old('jumlah_saudara') }}" />
+                                    <x-input id="jumlah_saudara" name="jumlah_saudara" type="number" min="0" placeholder="Contoh: 2" value="{{ old('jumlah_saudara') }}" />
                                     <p x-show="errors.jumlah_saudara" class="{{ $err }}" x-text="errors.jumlah_saudara"></p>
                                 </div>
                             </div>
@@ -696,12 +706,12 @@
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="no_kartu" class="{{ $lbl }}">No. Kartu</label>
-                                    <x-input id="no_kartu" name="no_kartu" type="text" value="{{ old('no_kartu') }}" />
+                                    <x-input id="no_kartu" name="no_kartu" type="text" placeholder="Nomor kartu" value="{{ old('no_kartu') }}" />
                                     <p x-show="errors.no_kartu" class="{{ $err }}" x-text="errors.no_kartu"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="nama_di_kartu" class="{{ $lbl }}">Nama di Kartu</label>
-                                    <x-input id="nama_di_kartu" name="nama_di_kartu" type="text" value="{{ old('nama_di_kartu') }}" />
+                                    <x-input id="nama_di_kartu" name="nama_di_kartu" type="text" placeholder="Nama sesuai kartu" value="{{ old('nama_di_kartu') }}" />
                                     <p x-show="errors.nama_di_kartu" class="{{ $err }}" x-text="errors.nama_di_kartu"></p>
                                 </div>
                             </div>
@@ -717,12 +727,12 @@
 
                                 <div class="{{ $field }}">
                                     <label for="kompetensi_keahlian" class="{{ $lbl }}">Kompetensi Keahlian</label>
-                                    <x-input id="kompetensi_keahlian" name="kompetensi_keahlian" type="text" value="{{ old('kompetensi_keahlian') }}" />
+                                    <x-input id="kompetensi_keahlian" name="kompetensi_keahlian" type="text" placeholder="Contoh: Tahfidz / Reguler" value="{{ old('kompetensi_keahlian') }}" />
                                     <p x-show="errors.kompetensi_keahlian" class="{{ $err }}" x-text="errors.kompetensi_keahlian"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="nis" class="{{ $lbl }}">NIS</label>
-                                    <x-input id="nis" name="nis" type="text" value="{{ old('nis') }}" />
+                                    <x-input id="nis" name="nis" type="text" placeholder="Nomor Induk Siswa" value="{{ old('nis') }}" />
                                     <p x-show="errors.nis" class="{{ $err }}" x-text="errors.nis"></p>
                                 </div>
                                 <div class="{{ $field }}">
@@ -732,22 +742,22 @@
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="sekolah_asal" class="{{ $lbl }}">Sekolah Asal</label>
-                                    <x-input id="sekolah_asal" name="sekolah_asal" type="text" value="{{ old('sekolah_asal') }}" />
+                                    <x-input id="sekolah_asal" name="sekolah_asal" type="text" placeholder="Nama sekolah asal" value="{{ old('sekolah_asal') }}" />
                                     <p x-show="errors.sekolah_asal" class="{{ $err }}" x-text="errors.sekolah_asal"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="no_peserta_un" class="{{ $lbl }}">Nomor Peserta UN SMP</label>
-                                    <x-input id="no_peserta_un" name="no_peserta_un" type="text" value="{{ old('no_peserta_un') }}" />
+                                    <x-input id="no_peserta_un" name="no_peserta_un" type="text" placeholder="Nomor peserta UN" value="{{ old('no_peserta_un') }}" />
                                     <p x-show="errors.no_peserta_un" class="{{ $err }}" x-text="errors.no_peserta_un"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="no_seri_ijazah" class="{{ $lbl }}">No. Seri Ijazah</label>
-                                    <x-input id="no_seri_ijazah" name="no_seri_ijazah" type="text" value="{{ old('no_seri_ijazah') }}" />
+                                    <x-input id="no_seri_ijazah" name="no_seri_ijazah" type="text" placeholder="Nomor seri ijazah" value="{{ old('no_seri_ijazah') }}" />
                                     <p x-show="errors.no_seri_ijazah" class="{{ $err }}" x-text="errors.no_seri_ijazah"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="no_skhun" class="{{ $lbl }}">No. SKHUN</label>
-                                    <x-input id="no_skhun" name="no_skhun" type="text" value="{{ old('no_skhun') }}" />
+                                    <x-input id="no_skhun" name="no_skhun" type="text" placeholder="Nomor SKHUN" value="{{ old('no_skhun') }}" />
                                     <p x-show="errors.no_skhun" class="{{ $err }}" x-text="errors.no_skhun"></p>
                                 </div>
                             </div>
@@ -778,7 +788,7 @@
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="alasan_keluar" class="{{ $lbl }}">Alasan</label>
-                                    <x-input id="alasan_keluar" name="alasan_keluar" type="text" value="{{ old('alasan_keluar') }}" />
+                                    <x-input id="alasan_keluar" name="alasan_keluar" type="text" placeholder="Jelaskan alasan keluar" value="{{ old('alasan_keluar') }}" />
                                     <p x-show="errors.alasan_keluar" class="{{ $err }}" x-text="errors.alasan_keluar"></p>
                                 </div>
                             </div>
@@ -789,7 +799,7 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="{{ $field }}">
                                         <label for="prestasi_jenis" class="{{ $lbl }}">Jenis</label>
-                                        <x-input id="prestasi_jenis" name="prestasi_jenis" type="text" value="{{ old('prestasi_jenis') }}" />
+                                        <x-input id="prestasi_jenis" name="prestasi_jenis" type="text" placeholder="Contoh: Akademik / Olahraga" value="{{ old('prestasi_jenis') }}" />
                                         <p x-show="errors.prestasi_jenis" class="{{ $err }}" x-text="errors.prestasi_jenis"></p>
                                     </div>
                                     <div class="{{ $field }}">
@@ -800,18 +810,18 @@
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="prestasi_nama" class="{{ $lbl }}">Nama Prestasi</label>
-                                    <x-input id="prestasi_nama" name="prestasi_nama" type="text" value="{{ old('prestasi_nama') }}" />
+                                    <x-input id="prestasi_nama" name="prestasi_nama" type="text" placeholder="Nama prestasi" value="{{ old('prestasi_nama') }}" />
                                     <p x-show="errors.prestasi_nama" class="{{ $err }}" x-text="errors.prestasi_nama"></p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="{{ $field }}">
                                         <label for="prestasi_tahun" class="{{ $lbl }}">Tahun</label>
-                                        <x-input id="prestasi_tahun" name="prestasi_tahun" type="number" min="1900" max="2099" value="{{ old('prestasi_tahun') }}" />
+                                        <x-input id="prestasi_tahun" name="prestasi_tahun" type="number" min="1900" max="2099" placeholder="Contoh: 2024" value="{{ old('prestasi_tahun') }}" />
                                         <p x-show="errors.prestasi_tahun" class="{{ $err }}" x-text="errors.prestasi_tahun"></p>
                                     </div>
                                     <div class="{{ $field }}">
                                         <label for="prestasi_penyelenggara" class="{{ $lbl }}">Penyelenggara</label>
-                                        <x-input id="prestasi_penyelenggara" name="prestasi_penyelenggara" type="text" value="{{ old('prestasi_penyelenggara') }}" />
+                                        <x-input id="prestasi_penyelenggara" name="prestasi_penyelenggara" type="text" placeholder="Penyelenggara" value="{{ old('prestasi_penyelenggara') }}" />
                                         <p x-show="errors.prestasi_penyelenggara" class="{{ $err }}" x-text="errors.prestasi_penyelenggara"></p>
                                     </div>
                                 </div>
@@ -822,23 +832,23 @@
 
                                 <div class="{{ $field }}">
                                     <label for="beasiswa_jenis" class="{{ $lbl }}">Jenis</label>
-                                    <x-input id="beasiswa_jenis" name="beasiswa_jenis" type="text" value="{{ old('beasiswa_jenis') }}" />
+                                    <x-input id="beasiswa_jenis" name="beasiswa_jenis" type="text" placeholder="Jenis beasiswa" value="{{ old('beasiswa_jenis') }}" />
                                     <p x-show="errors.beasiswa_jenis" class="{{ $err }}" x-text="errors.beasiswa_jenis"></p>
                                 </div>
                                 <div class="{{ $field }}">
                                     <label for="beasiswa_keterangan" class="{{ $lbl }}">Keterangan</label>
-                                    <x-input id="beasiswa_keterangan" name="beasiswa_keterangan" type="text" value="{{ old('beasiswa_keterangan') }}" />
+                                    <x-input id="beasiswa_keterangan" name="beasiswa_keterangan" type="text" placeholder="Keterangan beasiswa" value="{{ old('beasiswa_keterangan') }}" />
                                     <p x-show="errors.beasiswa_keterangan" class="{{ $err }}" x-text="errors.beasiswa_keterangan"></p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="{{ $field }}">
                                         <label for="beasiswa_tahun_mulai" class="{{ $lbl }}">Tahun Mulai</label>
-                                        <x-input id="beasiswa_tahun_mulai" name="beasiswa_tahun_mulai" type="number" min="1900" max="2099" value="{{ old('beasiswa_tahun_mulai') }}" />
+                                        <x-input id="beasiswa_tahun_mulai" name="beasiswa_tahun_mulai" type="number" min="1900" max="2099" placeholder="Contoh: 2023" value="{{ old('beasiswa_tahun_mulai') }}" />
                                         <p x-show="errors.beasiswa_tahun_mulai" class="{{ $err }}" x-text="errors.beasiswa_tahun_mulai"></p>
                                     </div>
                                     <div class="{{ $field }}">
                                         <label for="beasiswa_tahun_selesai" class="{{ $lbl }}">Tahun Selesai</label>
-                                        <x-input id="beasiswa_tahun_selesai" name="beasiswa_tahun_selesai" type="number" min="1900" max="2099" value="{{ old('beasiswa_tahun_selesai') }}" />
+                                        <x-input id="beasiswa_tahun_selesai" name="beasiswa_tahun_selesai" type="number" min="1900" max="2099" placeholder="Contoh: 2024" value="{{ old('beasiswa_tahun_selesai') }}" />
                                         <p x-show="errors.beasiswa_tahun_selesai" class="{{ $err }}" x-text="errors.beasiswa_tahun_selesai"></p>
                                     </div>
                                 </div>

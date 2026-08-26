@@ -257,24 +257,29 @@
 
     @if($profileForm === 'berkas')
     <div class="subview active" id="sub-berkas">
-      <p style="font-size:12.5px; color:var(--muted); margin:0 0 14px;">Unggah dokumen dalam format JPG, PNG, atau PDF (maks 5MB per berkas).</p>
-      <div class="card portal-upload-card" style="padding:2px 14px;">
+      <p style="font-size:12.5px; color:var(--muted); margin:0 0 14px;">Seret file ke area di bawah atau klik untuk unggah. JPG, PNG, atau PDF (maks 5MB). Langsung tersimpan ke database tanpa tombol submit.</p>
+      <div class="portal-upload-list" style="display:grid; gap:12px;">
         @php $portalDocs = ['foto_siswa' => 'Foto Siswa', 'kartu_keluarga' => 'Kartu Keluarga', 'akta_kelahiran' => 'Akta Kelahiran', 'ktp_ayah' => 'KTP Ayah', 'ktp_ibu' => 'KTP Ibu']; @endphp
         @foreach($portalDocs as $kind => $label)
           @php $file = $siswa->lampiran->firstWhere('jenis_dokumen', $kind); @endphp
-        <div class="file-row portal-file-row" data-kind="{{ $kind }}">
-          <div class="file-icon {{ $file ? 'done' : '' }}">{{ $file ? '✓' : '•' }}</div>
-          <div class="file-info">
-            <p class="f-name">{{ $label }}</p>
-            <p class="f-status {{ $file ? 'done' : '' }}">{{ $file ? 'Tersimpan · '.$file->nama_asli : 'Belum diunggah' }}</p>
-          </div>
-          <button type="button" class="file-btn portal-file-input-button">{{ $file ? 'Ganti' : 'Unggah' }}
-            <input type="file" class="portal-file-input" accept=".jpg,.jpeg,.png,.pdf">
-          </button>
+          @php $isImage = $file && str_starts_with($file->mime_type ?? '', 'image/'); @endphp
+        <div class="portal-file-row dropzone portal-dropzone {{ $file ? 'done' : '' }} {{ $isImage ? 'has-preview' : '' }}" data-kind="{{ $kind }}" style="position:relative; min-height:148px; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px 14px; overflow:hidden;">
           @if($file)
-          <button type="button" class="file-btn portal-file-view" data-url="{{ route('orang-tua.lampiran.view', $file->id) }}">Lihat</button>
-          <button type="button" class="file-btn portal-file-delete" data-url="{{ route('orang-tua.lampiran.delete', $file->id) }}">Hapus</button>
+          <button type="button" class="dropzone-remove portal-file-delete" data-url="{{ route('orang-tua.lampiran.delete', $file->id) }}" aria-label="Hapus"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          @if($isImage)
+          <img src="{{ route('orang-tua.lampiran.view', $file->id) }}" alt="{{ $label }}" class="dropzone-preview">
+          <div class="dropzone-preview-overlay"></div>
           @endif
+          @endif
+          <div class="dropzone-content" style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;">
+            <div class="file-icon {{ $file ? 'done' : '' }}" style="margin-bottom:2px;">{{ $file ? '✓' : '+' }}</div>
+            <div class="file-info" style="text-align:center;">
+              <p class="f-name" style="margin-bottom:2px;">{{ $label }}</p>
+              <p class="f-status {{ $file ? 'done' : '' }}" style="justify-content:center;">{{ $file ? $file->nama_asli : 'Seret file ke sini atau klik' }}</p>
+              <p class="f-hint" style="font-size:10.5px;color:var(--muted);margin:3px 0 0;">{{ $file ? 'Tersimpan · klik untuk ganti' : 'JPG, PNG, PDF · maks 5MB' }}</p>
+            </div>
+          </div>
+          <input type="file" class="portal-file-input" hidden accept=".jpg,.jpeg,.png,.pdf">
         </div>
         @endforeach
       </div>
