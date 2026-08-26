@@ -38,7 +38,7 @@ class RegisterController extends Controller
             'title' => 'Akun Berhasil Dibuat',
             'description' => 'Akun orang tua kamu sudah aktif. Gunakan nomor telepon sebagai username untuk masuk.',
             'primaryLabel' => 'Masuk Sekarang',
-            'primaryUrl' => route('mobile.login'),
+            'primaryUrl' => route('orang-tua.beranda'),
         ]);
     }
 

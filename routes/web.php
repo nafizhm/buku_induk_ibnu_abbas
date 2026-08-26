@@ -18,9 +18,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (Auth::check()) {
+        $isOrangTua = \Illuminate\Support\Facades\DB::table('akun_siswa')
+            ->where('user_id', Auth::id())->exists();
+        if ($isOrangTua) {
+            return redirect()->route('orang-tua.beranda');
+        }
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return redirect()->route('mobile.login');
 });
 
 Route::group(['middleware' => 'guest'], function () {
