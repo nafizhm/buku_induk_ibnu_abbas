@@ -2,9 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Master\DataGuruController;
-use App\Http\Controllers\Master\DataKelasController;
-use App\Http\Controllers\Master\DataSiswaController;
 use App\Http\Controllers\Master\TahunAjaranController;
 use App\Http\Controllers\Master\KelasController as MasterKelasController;
 use App\Http\Controllers\Pengaturan\HakAksesController;
@@ -98,7 +95,6 @@ Route::prefix('mobile')->group(function () {
         });
     });
 
-    // Di luar guest: user baru otomatis login saat diarahkan ke halaman ini
     Route::get('register/success', [RegisterController::class, 'success'])
         ->name('mobile.register.success');
 
@@ -112,7 +108,6 @@ Route::prefix('mobile')->group(function () {
     Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa')->name('siswa.daftar.update');
     Route::post('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
 
-    // Portal Orang Tua (butuh login; akun terhubung santri via tabel akun_siswa)
     Route::middleware('auth')->name('orang-tua.')->group(function () {
         Route::get('/', [OrangTuaPortalController::class, 'beranda'])->name('beranda');
         Route::get('presensi', [OrangTuaPortalController::class, 'presensi'])->name('presensi');
@@ -130,7 +125,6 @@ Route::prefix('mobile')->group(function () {
     });
 });
 
-// Alias tanpa prefix mobile untuk kompatibilitas JS lama yang fetch ke /siswa
 Route::post('siswa', [MobileSiswaController::class, 'store']);
 Route::get('siswa/{siswa}', [MobileSiswaController::class, 'show'])->whereNumber('siswa');
 Route::put('siswa/{siswa}', [MobileSiswaController::class, 'update'])->whereNumber('siswa');
