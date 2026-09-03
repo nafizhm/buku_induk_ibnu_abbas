@@ -1,11 +1,11 @@
 @extends('mobile.mobile-layout')
 
 @section('content')
-    <div class="flex h-dvh justify-center overflow-x-clip bg-muted select-none">
+    <div class="flex min-h-dvh justify-center overflow-x-clip bg-muted select-none">
         <div
-            class="relative flex w-full max-w-md flex-col overflow-hidden overscroll-x-none border-x border-border bg-background">
-            <div class="p-6 min-h-full">
-                <div class="flex h-full flex-col">
+            class="relative flex min-h-dvh w-full max-w-md flex-col overflow-x-hidden overscroll-x-none border-x border-border bg-background">
+            <div class="min-h-dvh p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                <div class="flex min-h-full flex-col">
                     <div class="flex flex-1 flex-col justify-center gap-4">
 
                         {{-- Branding --}}
