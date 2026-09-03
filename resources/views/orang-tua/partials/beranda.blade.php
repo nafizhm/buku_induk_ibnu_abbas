@@ -50,7 +50,7 @@
       </div>
       <div class="stat-card i-gold">
         <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
-        <p class="stat-value">2</p>
+        <p class="stat-value">{{ $kegiatanMendatang->count() }}</p>
         <p class="stat-label">Kegiatan mendatang</p>
       </div>
     </div>
@@ -81,6 +81,20 @@
       </a>
     </div>
     <div class="card">
+      @forelse($kegiatanMendatang->take(2) as $item)
+      <div class="event-preview">
+        <div class="date-chip"><p class="dnum">{{ $item->tgl_kegiatan->format('d') }}</p><p class="dmon">{{ $item->tgl_kegiatan->locale('id')->translatedFormat('M') }}</p></div>
+        <div class="event-body">
+          <p class="e-title">{{ $item->nama_kegiatan }}</p>
+          <p class="e-meta"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>{{ $item->tgl_kegiatan->locale('id')->translatedFormat('l, d F Y') }} · {{ $item->zona_waktu }}</p>
+        </div>
+      </div>
+      @empty
+      <p style="padding:18px;text-align:center;color:var(--muted);">Belum ada kegiatan aktif yang akan datang.</p>
+      @endforelse
+    </div>
+    @if(false)
+    <div class="card">
       <div class="event-preview">
         <div class="date-chip"><p class="dnum">24</p><p class="dmon">Agu</p></div>
         <div class="event-body">
@@ -102,5 +116,6 @@
         </div>
       </div>
     </div>
+    @endif
   </div>
 </section>

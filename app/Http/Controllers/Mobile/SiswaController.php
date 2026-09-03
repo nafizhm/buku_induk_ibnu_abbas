@@ -66,8 +66,8 @@ class SiswaController extends Controller
                 'moda_transportasi' => $siswa->moda_transportasi,
                 'anak_ke' => $siswa->anak_ke,
                 'pekerjaan' => $siswa->pekerjaan,
-                'punya_kip' => $siswa->punya_kip === null ? null : ($siswa->punya_kip ? 'Ya' : 'Tidak'),
-                'terima_kip' => $siswa->terima_kip === null ? null : ($siswa->terima_kip ? 'Ya' : 'Tidak'),
+                'punya_kip' => $siswa->punya_kip === null ? null : (str_starts_with((string) $siswa->punya_kip, '01)') ? 'Ya' : 'Tidak'),
+                'terima_kip' => $siswa->terima_kip === null ? null : (str_starts_with((string) $siswa->terima_kip, '01)') ? 'Ya' : 'Tidak'),
                 'alasan_tolak_pip' => $siswa->alasan_tolak_pip,
                 'telp_rumah' => $siswa->no_telepon_rumah,
                 'no_hp' => $siswa->no_hp,
@@ -309,8 +309,8 @@ class SiswaController extends Controller
             $out['jenis_kebutuhan_khusus'] = $bk;
             $out['berkebutuhan_khusus'] = $bk && $bk !== 'Tidak';
         }
-        if ($has('punya_kip')) $out['punya_kip'] = isset($d['punya_kip']) ? $d['punya_kip'] === 'Ya' : null;
-        if ($has('terima_kip')) $out['terima_kip'] = isset($d['terima_kip']) ? $d['terima_kip'] === 'Ya' : null;
+        if ($has('punya_kip')) $out['punya_kip'] = ($d['punya_kip'] ?? null) === 'Ya' ? '01) Ya' : (($d['punya_kip'] ?? null) === 'Tidak' ? '02) Tidak' : null);
+        if ($has('terima_kip')) $out['terima_kip'] = ($d['terima_kip'] ?? null) === 'Ya' ? '01) Ya' : (($d['terima_kip'] ?? null) === 'Tidak' ? '02) Tidak' : null);
         if ($has('tanggal_masuk')) $out['tanggal_masuk_sekolah'] = $v('tanggal_masuk');
 
         return $out;

@@ -2,6 +2,10 @@
 <section class="view" id="view-hafalan">
   @include('orang-tua.partials.page-header', ['title' => 'Hafalan', 'subtitle' => "Catatan hafalan Al-Qur'an & hadits harian"])
   <div class="content">
+    <div class="development-warning" role="alert">
+      <strong>Modul dalam pengembangan</strong>
+      <p>Modul ini masih dalam tahap pengembangan, data di bawah hanya sebagai contoh.</p>
+    </div>
     <div class="cal-card">
       <div class="cal-head">
         <button class="cal-nav" onclick="calPrev('hafalan')" aria-label="Bulan sebelumnya">

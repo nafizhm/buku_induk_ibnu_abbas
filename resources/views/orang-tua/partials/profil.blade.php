@@ -3,7 +3,7 @@
   @include('orang-tua.partials.page-header', ['title' => 'Profil', 'subtitle' => 'Data santri, orang tua, wali, dan berkas'])
   <div class="content">
 
-    @if(!$profileForm)
+    @if(false && !$profileForm)
     <div class="profile-summary">
       <div class="profile-summary-head">
         <h2>Ringkasan Kelengkapan Profil</h2>
@@ -25,8 +25,36 @@
     </div>
     @endif
 
-    @if($profileForm === 'siswa')
+    @if(!$profileForm)
+    <div class="subview active" id="sub-akun">
+      <div class="account-profile-card">
+        <div class="account-avatar">@if($siswa->foto)<img src="{{ asset('storage/'.$siswa->foto) }}" alt="Foto {{ $siswa->nama_lengkap }}">@else{{ mb_strtoupper(mb_substr($siswa->nama_lengkap,0,2)) }}@endif</div>
+        <div class="account-identity"><small>Akun Wali Murid</small><h2>{{ $account->nama ?: $siswa->nama_lengkap }}</h2><p>{{ $account->username }}</p></div>
+      </div>
+      <section class="dapodik-section account-form-card">
+        <div class="dapodik-section-head"><span>01</span><h2>Informasi Akun</h2></div>
+        <div class="dapodik-grid">
+          <div class="form-group field-wide"><label>Nama</label><input type="text" name="akun[nama]" value="{{ $account->nama ?: $siswa->nama_lengkap }}" required></div>
+          <div class="form-group field-wide"><label>Username / Nomor Telepon Login</label><input type="tel" value="{{ $account->username }}" readonly></div>
+          <div class="form-group"><label>Password Baru</label><input type="password" name="akun[password]" placeholder="Kosongkan jika tidak diubah" autocomplete="new-password"></div>
+          <div class="form-group"><label>Konfirmasi Password</label><input type="password" name="akun[password_confirmation]" placeholder="Ulangi password baru" autocomplete="new-password"></div>
+        </div>
+        <button type="button" class="btn-primary profile-save" data-section="akun">Simpan Akun</button>
+      </section>
+      <a href="{{ route('orang-tua.profil',['form'=>'dapodik']) }}" class="dapodik-entry-button" onclick="event.preventDefault();navigateProfileForm('dapodik')">
+        <span><strong>Isi Data Dapodik</strong><small>Buka seluruh formulir peserta didik sesuai PDF</small></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </a>
+      <a href="{{ route('orang-tua.profil',['form'=>'berkas']) }}" class="dapodik-entry-button upload-entry-button" onclick="event.preventDefault();navigateProfileForm('berkas')">
+        <span><strong>Upload Berkas Siswa</strong><small>Unggah foto, kartu keluarga, akta kelahiran, dan identitas orang tua</small></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
+      </a>
+    </div>
+    @endif
+
+    @if(false && $profileForm === 'siswa')
     <div class="subview active" id="sub-siswa">
+      <div class="section-title" style="margin-top:0;"><h2>Data Pribadi</h2></div>
       <div class="photo-upload">
         <div class="photo-circle" id="siswaPhotoWrap">
           @if($siswa->foto)
@@ -79,48 +107,96 @@
           <input type="date" name="tanggal_lahir" value="{{ optional($siswa->tanggal_lahir)->format('Y-m-d') }}">
         </div>
       </div>
-      <div class="form-group">
-        <label>Alamat Domisili</label>
-        <textarea name="alamat" placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan">{{ old('alamat', $siswa->alamat) }}</textarea>
-      </div>
-
       @php
-        $extraFields = [
-          'nisn' => 'NISN', 'nik' => 'NIK', 'no_kk' => 'Nomor KK', 'nama_panggilan' => 'Nama Panggilan',
-          'agama' => 'Agama', 'kewarganegaraan' => 'Kewarganegaraan', 'anak_ke' => 'Anak ke-',
-          'jumlah_saudara_kandung' => 'Jumlah Saudara Kandung', 'jumlah_saudara_tiri' => 'Jumlah Saudara Tiri',
-          'jumlah_saudara_angkat' => 'Jumlah Saudara Angkat', 'status_anak' => 'Status Anak',
-          'status_dalam_keluarga' => 'Status dalam Keluarga', 'tahun_ajaran_masuk' => 'Tahun Ajaran Masuk',
-          'kelas_saat_masuk' => 'Kelas Saat Masuk', 'status_siswa' => 'Status Siswa',
-          'npsn_sekolah_asal' => 'NPSN Sekolah Asal', 'no_ijazah_sebelumnya' => 'Nomor Ijazah Sebelumnya',
-          'no_skhun_sttb' => 'Nomor SKHUN/STTB', 'rt' => 'RT', 'rw' => 'RW', 'dusun' => 'Dusun/Kampung',
-          'desa_kelurahan' => 'Desa/Kelurahan', 'kecamatan' => 'Kecamatan', 'kabupaten_kota' => 'Kabupaten/Kota',
-          'provinsi' => 'Provinsi', 'kode_pos' => 'Kode Pos', 'status_tempat_tinggal' => 'Status Tempat Tinggal',
-          'jarak_sekolah' => 'Jarak Rumah ke Sekolah (km)', 'moda_transportasi' => 'Moda Transportasi',
-          'no_hp_darurat' => 'Nomor HP Darurat', 'golongan_darah' => 'Golongan Darah',
-          'tinggi_badan' => 'Tinggi Badan (cm)', 'berat_badan' => 'Berat Badan (kg)',
-          'lingkar_kepala' => 'Lingkar Kepala (cm)', 'berkebutuhan_khusus' => 'Berkebutuhan Khusus (1=ya, 0=tidak)',
-          'jenis_kebutuhan_khusus' => 'Jenis Kebutuhan Khusus',
+        $dapodikGroups = [
+          'Data Pribadi Lanjutan' => [
+            ['nisn','NISN','text'], ['nik','NIK / No. KITAS','text'], ['no_kk','Nomor KK','text'],
+            ['no_akta','Nomor Registrasi Akta Lahir','text'], ['nama_panggilan','Nama Panggilan','text'],
+            ['agama','Agama dan Kepercayaan','select',['Islam','Kristen/Protestan','Katolik','Hindu','Buddha','Konghucu','Kepercayaan Kepada Tuhan YME']],
+            ['kewarganegaraan','Kewarganegaraan','select',['Indonesia','Asing']], ['nama_negara','Nama Negara (untuk WNA)','text'],
+            ['berkebutuhan_khusus','Berkebutuhan Khusus','boolean'],
+            ['jenis_kebutuhan_khusus','Jenis Kebutuhan Khusus','text'],
+            ['anak_ke','Anak Keberapa','number'], ['pekerjaan','Pekerjaan (untuk warga belajar)','text'],
+          ],
+          'Alamat Tempat Tinggal' => [
+            ['alamat','Alamat Jalan','textarea'], ['rt','RT','text'], ['rw','RW','text'], ['dusun','Nama Dusun','text'],
+            ['desa_kelurahan','Kelurahan / Desa','text'], ['kecamatan','Kecamatan','text'], ['kabupaten_kota','Kabupaten / Kota','text'],
+            ['provinsi','Provinsi','text'], ['kode_pos','Kode Pos','text'], ['lintang','Lintang','number'], ['bujur','Bujur','number'],
+            ['status_tempat_tinggal','Tempat Tinggal','select',['Orang Tua','Wali','Kos','Asrama','Panti Asuhan','Lainnya']],
+            ['moda_transportasi','Moda Transportasi','select',['Jalan kaki','Kendaraan pribadi','Kendaraan umum/angkot','Jemputan sekolah','Kereta api','Ojek','Andong/Bendi/Dokar/Delman/Becak','Perahu penyeberangan/Rakit/Getek','Lainnya']],
+          ],
+          'Data Periodik' => [
+            ['tinggi_badan','Tinggi Badan (cm)','number'], ['berat_badan','Berat Badan (kg)','number'],
+            ['lingkar_kepala','Lingkar Kepala (cm)','number'], ['jarak_sekolah','Jarak Tempat Tinggal ke Sekolah (km)','number'],
+            ['waktu_jam','Waktu Tempuh (jam)','number'], ['waktu_menit','Waktu Tempuh (menit)','number'],
+            ['jumlah_saudara_kandung','Jumlah Saudara Kandung','number'],
+          ],
+          'KIP dan Kesejahteraan' => [
+            ['punya_kip','Apakah Punya KIP','boolean'], ['terima_kip','Tetap Menerima KIP','boolean'],
+            ['alasan_tolak_pip','Alasan Menolak PIP','select',['Dilarang pemda karena menerima bantuan serupa','Menolak','Sudah mampu']],
+            ['jenis_kesejahteraan','Jenis Kesejahteraan','select',['PKH','PIP','Kartu Perlindungan Sosial','Kartu Keluarga Sejahtera','Kartu Kesehatan']],
+            ['no_kartu','Nomor Kartu','text'], ['nama_di_kartu','Nama di Kartu','text'],
+          ],
+          'Kontak' => [
+            ['no_telepon_rumah','Nomor Telepon Rumah','tel'], ['no_hp','Nomor HP','tel'], ['email','Email','email'],
+          ],
+          'Registrasi Peserta Didik' => [
+            ['kompetensi_keahlian','Kompetensi Keahlian','text'],
+            ['jenis_pendaftaran','Jenis Pendaftaran','select',['Siswa Baru','Pindahan','Kembali Bersekolah']],
+            ['tanggal_masuk_sekolah','Tanggal Masuk Sekolah','date'], ['sekolah_asal','Sekolah Asal','text'],
+            ['no_peserta_un','Nomor Peserta UN SMP/MTs','text'], ['no_seri_ijazah','Nomor Seri Ijazah SMP/MTs','text'],
+            ['no_skhun','Nomor SKHUN SMP/MTs','text'],
+          ],
+          'Pendaftaran Keluar' => [
+            ['keluar_karena','Keluar Karena','select',['Mutasi','Dikeluarkan','Mengundurkan Diri','Putus Sekolah','Wafat','Hilang','Lulus']],
+            ['tanggal_keluar','Tanggal Keluar','date'], ['alasan_keluar','Alasan Keluar','textarea'],
+          ],
+          'Kesehatan Tambahan' => [
+            ['golongan_darah','Golongan Darah','select',['A','B','AB','O']], ['riwayat_kesehatan','Penyakit / Riwayat Kesehatan Penting','textarea'],
+          ],
         ];
-        $dateFields = ['tanggal_masuk_sekolah' => 'Tanggal Masuk Sekolah'];
       @endphp
 
-      @foreach($dateFields as $n => $l)
-      <div class="form-group"><label>{{ $l }}</label><input type="date" name="{{ $n }}" value="{{ optional(data_get($siswa,$n))->format('Y-m-d') }}"></div>
-      @endforeach
-      @foreach($extraFields as $n => $l)
-      <div class="form-group"><label>{{ $l }}</label><input type="text" name="{{ $n }}" value="{{ old($n, data_get($siswa,$n)) }}"></div>
-      @endforeach
-      <div class="form-group">
-        <label>Penyakit/Riwayat Kesehatan Penting</label>
-        <textarea name="riwayat_kesehatan">{{ old('riwayat_kesehatan', $siswa->riwayat_kesehatan) }}</textarea>
+      @foreach($dapodikGroups as $group => $fields)
+      <div class="section-title"><h2>{{ $group }}</h2></div>
+      @foreach($fields as $field)
+      @php
+        [$name,$label,$type] = array_slice($field,0,3);
+        $options=$field[3]??[]; $value=old($name,data_get($siswa,$name));
+        if($value instanceof \Carbon\CarbonInterface)$value=$value->format('Y-m-d');
+        if($name==='berkebutuhan_khusus'){ $type='boolean'; }
+      @endphp
+      <div class="form-group"><label>{{ $label }}</label>
+        @if($type==='textarea')
+          <textarea name="{{ $name }}">{{ $value }}</textarea>
+        @elseif($type==='select')
+          <select name="{{ $name }}"><option value="">Pilih</option>@foreach($options as $option)<option value="{{ $option }}" @selected((string)$value===(string)$option)>{{ $option }}</option>@endforeach</select>
+        @elseif($type==='boolean')
+          <select name="{{ $name }}"><option value="">Pilih</option><option value="1" @selected((string)$value==='1')>Ya</option><option value="0" @selected((string)$value==='0')>Tidak</option></select>
+        @else
+          <input type="{{ $type }}" name="{{ $name }}" value="{{ $value }}" @if($type==='number') step="any" @endif>
+        @endif
       </div>
+      @endforeach
+      @endforeach
 
       <button type="button" class="btn-primary profile-save" data-section="siswa">Simpan Profil Siswa</button>
     </div>
     @endif
 
-    @if($profileForm === 'ayah')
+    @if($profileForm === 'siswa')
+      @include('orang-tua.partials.profil-siswa-dapodik')
+    @endif
+
+    @if($profileForm === 'dapodik')
+      <div class="dapodik-page-intro"><a href="{{ route('orang-tua.profil') }}">← Kembali ke Profil</a><h2>Formulir Peserta Didik</h2><p>Periksa dan lengkapi seluruh kelompok data sesuai formulir Dapodik.</p></div>
+      @include('orang-tua.partials.profil-siswa-dapodik')
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ayah'])
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ibu'])
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'wali', 'returnToProfile' => true])
+    @endif
+
+    @if(false && $profileForm === 'ayah')
     <div class="subview active" id="sub-ayah">
       <div class="section-title" style="margin-top:0;"><h2>Data Ayah</h2></div>
       <div class="form-group">
@@ -161,7 +237,11 @@
     </div>
     @endif
 
-    @if($profileForm === 'ibu')
+    @if($profileForm === 'ayah')
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ayah'])
+    @endif
+
+    @if(false && $profileForm === 'ibu')
     <div class="subview active" id="sub-ibu">
       <div class="section-title" style="margin-top:0;"><h2>Data Ibu</h2></div>
       <div class="form-group">
@@ -202,7 +282,11 @@
     </div>
     @endif
 
-    @if($profileForm === 'wali')
+    @if($profileForm === 'ibu')
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ibu'])
+    @endif
+
+    @if(false && $profileForm === 'wali')
     <div class="subview active" id="sub-wali">
       <div class="toggle-row">
         <span class="tr-text">Wali sama dengan Orang Tua</span>
@@ -253,6 +337,10 @@
       </div>
       <p class="empty-note" id="waliEmptyNote">Data wali mengikuti data orang tua yang sudah diisi.</p>
     </div>
+    @endif
+
+    @if($profileForm === 'wali')
+      @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'wali'])
     @endif
 
     @if($profileForm === 'berkas')

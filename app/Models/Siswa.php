@@ -14,7 +14,6 @@ class Siswa extends Model
         'berkebutuhan_khusus' => 'boolean', 'jarak_sekolah' => 'decimal:2', 'jarak_tempuh' => 'decimal:2',
         'lintang' => 'decimal:6', 'bujur' => 'decimal:6',
         'tinggi_badan' => 'decimal:2', 'berat_badan' => 'decimal:2', 'lingkar_kepala' => 'decimal:2',
-        'punya_kip' => 'boolean', 'terima_kip' => 'boolean',
     ];
 
     public function orangTua() { return $this->hasOne(OrangTua::class); }

@@ -291,14 +291,21 @@
 
                         @php
                             use Illuminate\Support\Str;
-                            $getmenus = session('getmenus', []);
+                            $allowedMenuIds = \App\Models\HakAkses::where('id_user', auth()->id())
+                                ->where('lihat', 1)->pluck('id_menu');
+                            $getmenus = \App\Models\Menu::where('id_parent', 0)
+                                ->whereIn('id', $allowedMenuIds)->orderBy('urutan')
+                                ->with(['children' => fn ($query) => $query->whereIn('id', $allowedMenuIds)])
+                                ->get();
                             $currentRoute = request()->route()->getName();
                         @endphp
 
                         @foreach ($getmenus as $menu)
                             @php
                                 $availableChildren = isset($menu->children)
-                                    ? $menu->children->filter(fn ($submenu) => Route::has($submenu->route_name))
+                                    ? $menu->children
+                                        ->filter(fn ($submenu) => Route::has($submenu->route_name))
+                                        ->reject(fn ($submenu) => $submenu->route_name === 'calon-siswa.index')
                                     : collect();
                                 $hasChildren = $availableChildren->isNotEmpty();
                                 $hasRoute = Route::has($menu->route_name);

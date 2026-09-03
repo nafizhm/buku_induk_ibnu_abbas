@@ -9,11 +9,9 @@
                     <div class="flex flex-1 flex-col justify-center gap-4">
 
                         {{-- Branding --}}
-                        <div class="w-fit rounded-md bg-chart-3 p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-                                fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                            </svg>
+                        <div class="flex justify-center">
+                            <img src="{{ asset('assets/orang-tua/img/logo.jpg') }}"
+                                alt="Logo Rumah Qur'an Ibnu Abbas" class="h-32 w-32 object-contain" />
                         </div>
 
                         <div>

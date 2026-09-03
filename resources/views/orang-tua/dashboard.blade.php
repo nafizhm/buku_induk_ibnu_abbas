@@ -34,7 +34,7 @@
     csrf: '{{ csrf_token() }}',
     activeView: @json($activeView),
     profileForm: @json($profileForm),
-    qrText: @json('RQIA-PRESENSI|ORTU:'.$account->id.'|SANTRI:'.$siswa->nipd.'|'.($orangTua?->nama_lengkap ?? $siswa->nama_lengkap)),
+    qrText: @json($qrKegiatan?->qr_code),
     presensiData: @json($presensiData),
     hafalanData: @json($hafalanData),
     routes: {

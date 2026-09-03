@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
 use App\Models\LampiranSiswa;
+use App\Models\Kegiatan;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,7 @@ class OrangTuaPortalController extends Controller
         $form = $request->query('form') ?? $request->query('tab');
 
         return $this->portalView('profil', [
-            'profileForm' => in_array($form, ['siswa', 'ayah', 'ibu', 'wali', 'berkas'], true) ? $form : null,
+            'profileForm' => in_array($form, ['dapodik', 'siswa', 'ayah', 'ibu', 'wali', 'berkas'], true) ? $form : null,
             'profileSummary' => $this->profileSummary(),
         ]);
     }
@@ -53,17 +54,27 @@ class OrangTuaPortalController extends Controller
     {
         $siswa = $this->resolveSiswa();
 
-        if (! in_array($section, ['siswa', 'ayah', 'ibu', 'wali'], true)) {
+        if (! in_array($section, ['akun', 'siswa', 'ayah', 'ibu', 'wali'], true)) {
             abort(404);
         }
 
         $data = $this->validateSection($request, $section);
 
-        if ($section === 'siswa') {
+        if ($section === 'akun') {
+            $account = Auth::user();
+            $account->nama = $data['fields']['akun']['nama'];
+            if (! empty($data['fields']['akun']['password'])) $account->password = $data['fields']['akun']['password'];
+            $account->save();
+        } elseif ($section === 'siswa') {
             $siswa->update($this->mapSiswaFields($data['fields']));
         } else {
             $ot = $siswa->orangTua()->firstOrNew([]);
             foreach ($data['fields'][$section] ?? [] as $field => $value) {
+                if (is_array($value)) {
+                    $values = collect($value)->filter()->unique();
+                    if ($values->count() > 1) $values = $values->reject(fn ($item) => str_starts_with($item, '01)'));
+                    $value = $values->implode(', ');
+                }
                 $ot->{$field} = $value;
             }
             $ot->save();
@@ -143,6 +154,15 @@ class OrangTuaPortalController extends Controller
     {
         $siswa = $this->resolveSiswa();
         $siswa->load(['kelas', 'orangTua', 'lampiran']);
+        $kegiatanMendatang = Kegiatan::query()
+            ->where('status', 'aktif')
+            ->whereDate('tgl_kegiatan', '>=', today())
+            ->orderBy('tgl_kegiatan')->orderBy('id')->get();
+        $daftarKegiatan = Kegiatan::query()->orderByDesc('tgl_kegiatan')->orderByDesc('id')->get();
+        $kegiatanBerikutnya = $kegiatanMendatang->first();
+        $qrKegiatan = $kegiatanBerikutnya
+            ? $kegiatanBerikutnya->presensi()->where('siswa_id', $siswa->id)->first()
+            : null;
 
         return view('orang-tua.dashboard', array_merge([
             'account' => Auth::user(),
@@ -153,6 +173,9 @@ class OrangTuaPortalController extends Controller
             'profileSummary' => $this->profileSummary(),
             'presensiData' => $this->mockPresensi(),
             'hafalanData' => $this->mockHafalan(),
+            'kegiatanMendatang' => $kegiatanMendatang,
+            'daftarKegiatan' => $daftarKegiatan,
+            'qrKegiatan' => $qrKegiatan,
         ], $extra));
     }
 
@@ -224,6 +247,10 @@ class OrangTuaPortalController extends Controller
     private function validateSection(Request $request, string $section): array
     {
         $rules = match ($section) {
+            'akun' => [
+                'akun.nama' => 'required|string|max:191',
+                'akun.password' => 'nullable|string|min:6|confirmed',
+            ],
             'siswa' => [
                 'nama_lengkap' => 'required|string|max:200',
                     'nipd' => 'nullable|string|max:20',
@@ -233,11 +260,17 @@ class OrangTuaPortalController extends Controller
                     'tanggal_masuk_sekolah' => 'nullable|date',
                     'agama' => 'nullable|string|max:50',
                     'kewarganegaraan' => 'nullable|string|max:50',
+                    'nama_negara' => 'nullable|string|max:100',
                     'alamat' => 'nullable|string|max:1000',
                     'nisn' => 'nullable|string|max:25',
                     'nik' => 'nullable|string|max:16',
                     'no_kk' => 'nullable|string|max:16',
+                    'no_akta' => 'nullable|string|max:100',
                     'nama_panggilan' => 'nullable|string|max:100',
+                    'pekerjaan' => 'nullable|string|max:100',
+                    'punya_kip' => 'nullable|in:01) Ya,02) Tidak',
+                    'terima_kip' => 'nullable|in:01) Ya,02) Tidak',
+                    'alasan_tolak_pip' => 'nullable|string|max:100',
                     'anak_ke' => 'nullable|integer|min:1',
                     'jumlah_saudara_kandung' => 'nullable|integer|min:0',
                     'jumlah_saudara_tiri' => 'nullable|integer|min:0',
@@ -258,17 +291,36 @@ class OrangTuaPortalController extends Controller
                     'kabupaten_kota' => 'nullable|string|max:100',
                     'provinsi' => 'nullable|string|max:100',
                     'kode_pos' => 'nullable|string|max:10',
+                    'lintang' => 'nullable|numeric|between:-90,90',
+                    'bujur' => 'nullable|numeric|between:-180,180',
                     'status_tempat_tinggal' => 'nullable|string|max:30',
                     'jarak_sekolah' => 'nullable|numeric|min:0',
                     'moda_transportasi' => 'nullable|string|max:100',
                     'no_hp_darurat' => 'nullable|string|max:20',
+                    'no_telepon_rumah' => 'nullable|string|max:20',
+                    'no_hp' => 'nullable|string|max:20',
+                    'email' => 'nullable|email|max:191',
                     'golongan_darah' => 'nullable|string|max:5',
                     'tinggi_badan' => 'nullable|numeric',
                     'berat_badan' => 'nullable|numeric',
                     'lingkar_kepala' => 'nullable|numeric',
-                    'berkebutuhan_khusus' => 'nullable|in:0,1',
-                    'jenis_kebutuhan_khusus' => 'nullable|string|max:191',
+                    'jenis_kebutuhan_khusus' => 'nullable|array',
+                    'jenis_kebutuhan_khusus.*' => 'string|max:100',
                     'riwayat_kesehatan' => 'nullable|string|max:1000',
+                    'waktu_jam' => 'nullable|integer|min:0|max:23',
+                    'waktu_menit' => 'nullable|integer|min:0|max:59',
+                    'jenis_kesejahteraan' => 'nullable|string|max:50',
+                    'no_kartu' => 'nullable|string|max:100',
+                    'nama_di_kartu' => 'nullable|string|max:191',
+                    'kompetensi_keahlian' => 'nullable|string|max:100',
+                    'jenis_pendaftaran' => 'nullable|string|max:50',
+                    'sekolah_asal' => 'nullable|string|max:191',
+                    'no_peserta_un' => 'nullable|string|max:100',
+                    'no_seri_ijazah' => 'nullable|string|max:100',
+                    'no_skhun' => 'nullable|string|max:100',
+                    'keluar_karena' => 'nullable|string|max:50',
+                    'tanggal_keluar' => 'nullable|date',
+                    'alasan_keluar' => 'nullable|string|max:1000',
             ],
             default => collect($this->orangTuaRules($section))
                 ->mapWithKeys(fn($rule, $name) => ["{$section}.{$name}" => $rule])
@@ -289,7 +341,8 @@ class OrangTuaPortalController extends Controller
                 "pendidikan_{$prefix}" => 'nullable|string|max:100',
                 "pekerjaan_{$prefix}" => 'nullable|string|max:100',
                 "penghasilan_{$prefix}" => 'nullable|string|max:50',
-                "berkebutuhan_{$prefix}" => 'nullable|string|max:50',
+                "berkebutuhan_{$prefix}" => 'nullable|array',
+                "berkebutuhan_{$prefix}.*" => 'string|max:100',
             ],
             'ibu' => [
                 "nama_{$prefix}" => 'required|string|max:200',
@@ -299,7 +352,8 @@ class OrangTuaPortalController extends Controller
                 "pendidikan_{$prefix}" => 'nullable|string|max:100',
                 "pekerjaan_{$prefix}" => 'nullable|string|max:100',
                 "penghasilan_{$prefix}" => 'nullable|string|max:50',
-                "berkebutuhan_{$prefix}" => 'nullable|string|max:50',
+                "berkebutuhan_{$prefix}" => 'nullable|array',
+                "berkebutuhan_{$prefix}.*" => 'string|max:100',
             ],
             'wali' => [
                 'nama_wali' => 'nullable|string|max:200',
@@ -315,6 +369,15 @@ class OrangTuaPortalController extends Controller
 
     private function mapSiswaFields(array $data): array
     {
+        if (array_key_exists('jenis_kebutuhan_khusus', $data)) {
+            $needs = collect($data['jenis_kebutuhan_khusus'])->filter()->unique();
+            if ($needs->count() > 1) $needs = $needs->reject(fn ($value) => str_starts_with($value, '01)'));
+            $data['jenis_kebutuhan_khusus'] = $needs->implode(', ');
+            $data['berkebutuhan_khusus'] = $needs->isNotEmpty() && ! str_starts_with((string) $needs->first(), '01)');
+        } else {
+            unset($data['jenis_kebutuhan_khusus']);
+        }
+
         if (($data['tanggal_masuk_sekolah'] ?? '') === '') {
             unset($data['tanggal_masuk_sekolah']);
         }

@@ -114,7 +114,12 @@
     pane.querySelectorAll('[name]').forEach(field => {
       if (section !== 'siswa' && !field.name.startsWith(section + '[')) return;
       if ((field.type === 'radio' || field.type === 'checkbox') && !field.checked) return;
-      if (!field.disabled) data.append(field.name, field.value);
+      if (field.disabled) return;
+      if (field.tagName === 'SELECT' && field.multiple) {
+        Array.from(field.selectedOptions).forEach(option => data.append(field.name, option.value));
+        return;
+      }
+      data.append(field.name, field.value);
     });
     return data;
   }
@@ -122,8 +127,10 @@
   function initSaveButtons() {
     document.querySelectorAll('.profile-save').forEach(button => button.addEventListener('click', function () {
       const section = this.dataset.section;
-      const pane = document.getElementById('sub-' + (section === 'ibu' ? 'ayah' : section));
+      const pane = document.getElementById('sub-' + section);
       const data = collectSection(pane, section);
+      const originalLabel = this.innerHTML;
+      const stayOnDapodik = P.profileForm === 'dapodik' && !this.hasAttribute('data-return-profile');
       this.disabled = true;
       this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
       document.getElementById('pageLoading').classList.add('show');
@@ -134,11 +141,17 @@
         const payload = await response.json();
         if (!response.ok) throw payload;
         toastr.success(payload.message || 'Data berhasil disimpan.');
-        setTimeout(navigateProfileSummary, 500);
+        if (stayOnDapodik) {
+          document.getElementById('pageLoading').classList.remove('show');
+          this.disabled = false;
+          this.innerHTML = originalLabel;
+        } else {
+          setTimeout(navigateProfileSummary, 500);
+        }
       }).catch(error => {
         document.getElementById('pageLoading').classList.remove('show');
         this.disabled = false;
-        this.textContent = 'Simpan';
+        this.innerHTML = originalLabel;
         const message = error?.message || Object.values(error?.errors || {}).flat()[0] || 'Data gagal disimpan.';
         toastr.error(message);
       });
@@ -411,12 +424,12 @@
 
     const requestedSub = new URLSearchParams(window.location.search).get('tab');
     const requestedForm = P.profileForm;
-    if (P.activeView === 'profil' && requestedForm && document.getElementById('sub-' + requestedForm)) {
+    if (P.activeView === 'profil' && requestedForm === 'dapodik') {
+      // Seluruh kelompok Dapodik ditampilkan sekaligus.
+    } else if (P.activeView === 'profil' && requestedForm && document.getElementById('sub-' + requestedForm)) {
       showSub(requestedForm);
     } else if (P.activeView === 'profil' && requestedSub && document.getElementById('sub-' + requestedSub)) {
       showSub(requestedSub);
-    } else if (P.activeView === 'profil') {
-      showSub(P.defaultSub || 'siswa');
     }
     document.getElementById('pageLoading').classList.remove('show');
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\Master\TahunAjaranController;
 use App\Http\Controllers\Master\KelasController as MasterKelasController;
 use App\Http\Controllers\Pengaturan\HakAksesController;
@@ -37,6 +38,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::prefix('master')->group(function () {
         Route::get('jenjang', [MasterKelasController::class, 'index'])->name('jenjang.index');
+        Route::get('kelas/{kela}/detail', [MasterKelasController::class, 'detail'])->name('kelas.detail');
         Route::resource('kelas', MasterKelasController::class)->except(['create', 'edit']);
         Route::resource('tahun-ajaran', TahunAjaranController::class);
 
@@ -52,6 +54,10 @@ Route::middleware('auth')->prefix('admin')->group(function () {
             Route::get('/create', 'create')->name('siswa.create');
             Route::post('/download', 'download')->name('siswa.download');
             Route::post('/', 'store')->name('siswa.store');
+            Route::get('/lampiran/{lampiran}/view', 'viewLampiran')->whereNumber('lampiran')->name('siswa.lampiran.view');
+            Route::delete('/lampiran/{lampiran}', 'deleteLampiran')->whereNumber('lampiran')->name('siswa.lampiran.delete');
+            Route::post('/{siswa}/lampiran', 'uploadLampiran')->whereNumber('siswa')->name('siswa.lampiran.upload');
+            Route::get('/{siswa}/download', 'downloadSiswa')->whereNumber('siswa')->name('siswa.download-one');
             Route::get('/{id}', 'show')->whereNumber('id')->name('siswa.show');
             Route::get('/{id}/edit', 'edit')->whereNumber('id')->name('siswa.edit');
             Route::put('/{id}', 'update')->whereNumber('id')->name('siswa.update');
@@ -69,6 +75,8 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     });
 
     Route::resource('rapor-siswa', RaporSiswaController::class);
+    Route::get('kegiatan/{kegiatan}/export', [KegiatanController::class, 'export'])->name('kegiatan.export');
+    Route::resource('kegiatan', KegiatanController::class)->except(['create', 'edit']);
     Route::get('get-hak-akses', [HakAksesController::class, 'getHakAkses'])->name('admin.getHakAkses');
     Route::put('updateHakAkses', [HakAksesController::class, 'updateHakAkses'])->name('admin.updateHakAkses');
 
@@ -120,7 +128,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('hafalan', [OrangTuaPortalController::class, 'hafalan'])->name('hafalan');
         Route::get('profil', [OrangTuaPortalController::class, 'profil'])->name('profil');
         Route::post('profil/{section}', [OrangTuaPortalController::class, 'updateProfil'])
-            ->whereIn('section', ['siswa', 'ayah', 'ibu', 'wali'])->name('profil.update');
+            ->whereIn('section', ['akun', 'siswa', 'ayah', 'ibu', 'wali'])->name('profil.update');
         Route::post('lampiran', [OrangTuaPortalController::class, 'uploadLampiran'])->name('lampiran.upload');
         Route::get('lampiran/{lampiran}', [OrangTuaPortalController::class, 'viewLampiran'])
             ->whereNumber('lampiran')->name('lampiran.view');

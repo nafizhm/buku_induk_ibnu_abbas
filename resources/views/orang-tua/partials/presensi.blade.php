@@ -2,6 +2,10 @@
 <section class="view" id="view-presensi">
   @include('orang-tua.partials.page-header', ['title' => 'Presensi', 'subtitle' => 'Rekap kehadiran santri per bulan'])
   <div class="content">
+    <div class="development-warning" role="alert">
+      <strong>Modul dalam pengembangan</strong>
+      <p>Modul ini masih dalam tahap pengembangan, data di bawah hanya sebagai contoh.</p>
+    </div>
     <div class="cal-card">
       <div class="cal-head">
         <button class="cal-nav" onclick="calPrev('presensi')" aria-label="Bulan sebelumnya">
