@@ -298,6 +298,11 @@
                                 ->with(['children' => fn ($query) => $query->whereIn('id', $allowedMenuIds)])
                                 ->get();
                             $currentRoute = request()->route()->getName();
+                            $isMenuRouteActive = function ($route) use ($currentRoute) {
+                                return $currentRoute === $route
+                                    || (Str::contains($route, '.')
+                                        && Str::startsWith($currentRoute, Str::beforeLast($route, '.').'.'));
+                            };
                         @endphp
 
                         @foreach ($getmenus as $menu)
@@ -314,9 +319,7 @@
                                     ? $availableChildren->pluck('route_name')->toArray()
                                     : [$menu->route_name];
 
-                                $isActive = collect($activeRoutes)->contains(function ($route) use ($currentRoute) {
-                                    return Str::startsWith($currentRoute, Str::before($route, '.'));
-                                });
+                                $isActive = collect($activeRoutes)->contains($isMenuRouteActive);
                             @endphp
 
                             @if (!$hasChildren && !$hasRoute)
@@ -332,7 +335,7 @@
                                     <ul class="submenu">
                                         @foreach ($availableChildren->sortBy('urutan') as $submenu)
                                             <li
-                                                class="submenu-item {{ Str::startsWith($currentRoute, Str::before($submenu->route_name, '.')) ? 'active' : '' }}">
+                                                class="submenu-item {{ $isMenuRouteActive($submenu->route_name) ? 'active' : '' }}">
                                                 <a href="{{ route($submenu->route_name) }}" class="submenu-link">
                                                     {{ $submenu->title }}
                                                 </a>
@@ -342,7 +345,7 @@
                                 </li>
                             @else
                                 <li
-                                    class="sidebar-item {{ Str::startsWith($currentRoute, Str::before($menu->route_name, '.')) ? 'active' : '' }}">
+                                    class="sidebar-item {{ $isActive ? 'active' : '' }}">
                                     <a href="{{ route($menu->route_name) }}" class="sidebar-link">
                                         <i class="{{ $menu->icon }}"></i>
                                         <span>{{ $menu->title }}</span>

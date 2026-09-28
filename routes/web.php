@@ -21,6 +21,13 @@ Route::view('/spmb', 'spmb')->name('spmb');
 Route::post('/spmb', [\App\Http\Controllers\SpmbController::class, 'store'])->middleware('throttle:10,1')->name('spmb.store');
 Route::get('/spmb/berhasil', [\App\Http\Controllers\SpmbController::class, 'berhasil'])->name('spmb.berhasil');
 Route::get('/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'formulir'])->where('token', '[A-Za-z0-9]{10}')->name('spmb.formulir');
+Route::prefix('/spmb/formulir/{token}')->where(['token' => '[A-Za-z0-9]{10}'])->group(function () {
+    Route::get('/isian', [\App\Http\Controllers\SpmbController::class, 'isian'])->name('spmb.formulir.isian');
+    Route::get('/lampiran', [\App\Http\Controllers\SpmbController::class, 'lampiran'])->name('spmb.lampiran');
+    Route::post('/lampiran', [\App\Http\Controllers\SpmbController::class, 'uploadLampiran'])->middleware('throttle:30,1')->name('spmb.lampiran.store');
+    Route::get('/lampiran/{jenis}', [\App\Http\Controllers\SpmbController::class, 'lihatLampiran'])->middleware('throttle:60,1')->name('spmb.lampiran.view');
+    Route::delete('/lampiran/{jenis}', [\App\Http\Controllers\SpmbController::class, 'hapusLampiran'])->middleware('throttle:30,1')->name('spmb.lampiran.delete');
+});
 Route::get('/spmb/formulir/{token}/data', [\App\Http\Controllers\SpmbController::class, 'dataFormulir'])->where('token', '[A-Za-z0-9]{10}')->middleware('throttle:60,1')->name('spmb.formulir.data');
 Route::match(['post', 'put'], '/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'simpanFormulir'])->where('token', '[A-Za-z0-9]{10}')->middleware('throttle:60,1')->name('spmb.formulir.store');
 
@@ -42,6 +49,12 @@ Route::group(['middleware' => 'guest'], function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('pendaftar', [\App\Http\Controllers\SpmbController::class, 'pendaftar'])->name('admin.pendaftar.index');
+    foreach (['spmb', 'pendaftar'] as $menu) {
+        Route::get($menu.'/{pendaftaran}/detail', [\App\Http\Controllers\SpmbController::class, 'detail'])->whereNumber('pendaftaran')->name('admin.'.$menu.'.detail');
+        Route::get($menu.'/{pendaftaran}/lampiran/{jenis}', [\App\Http\Controllers\SpmbController::class, 'adminLampiran'])->whereNumber('pendaftaran')->name('admin.'.$menu.'.lampiran');
+    }
+    Route::get('pendaftar/{pendaftaran}/bukti', [\App\Http\Controllers\SpmbController::class, 'bukti'])->whereNumber('pendaftaran')->name('admin.pendaftar.bukti');
     Route::get('spmb', [\App\Http\Controllers\SpmbController::class, 'index'])->name('admin.spmb.index');
     Route::post('spmb/{pendaftaran}/kirim-wa', [\App\Http\Controllers\SpmbController::class, 'kirimWa'])->whereNumber('pendaftaran')->name('admin.spmb.kirim-wa');
     Route::get('spmb/{pendaftaran}/bukti', [\App\Http\Controllers\SpmbController::class, 'bukti'])->whereNumber('pendaftaran')->name('admin.spmb.bukti');

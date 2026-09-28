@@ -17,7 +17,7 @@ class SpmbTest extends TestCase
     private function payload(): array
     {
         return [
-            'nama' => 'Calon Santri Uji', 'jk' => 'Putra (Banin)',
+            'nama' => 'Calon Santri Uji', 'jk' => 'Putra (Banin)', 'jenjang' => 'SD',
             'ortu' => 'Orang Tua Uji', 'wa' => '081234567890',
             'bukti' => UploadedFile::fake()->create('transfer.pdf', 100, 'application/pdf'),
         ];
@@ -29,6 +29,59 @@ class SpmbTest extends TestCase
             ->whereHas('menu', fn ($query) => $query->where('route_name', 'admin.spmb.index'))->firstOrFail();
 
         return User::findOrFail($access->id_user);
+    }
+
+    public function test_pendaftar_lists_only_submitted_forms_and_protects_details(): void
+    {
+        Storage::fake('local');
+        $this->postJson('/spmb', $this->payload())->assertCreated();
+        $record = SpmbPendaftaran::latest('id')->firstOrFail();
+        $record->status = 'isi formulir';
+        $record->save();
+        $this->postJson(route('spmb.lampiran.store', $record->token), [
+            'jenis' => 'akta_kelahiran',
+            'file' => UploadedFile::fake()->create('akta.pdf', 100, 'application/pdf'),
+        ])->assertSuccessful();
+        $file = $record->lampiran()->firstOrFail();
+        $this->assertStringStartsWith('spmb/lampiran/'.$record->id.'/', $file->path);
+        $this->get(route('admin.pendaftar.index'))->assertRedirect(route('login'));
+        $admin = $this->admin();
+        $this->actingAs($admin)->get(route('admin.pendaftar.index'))->assertOk()->assertDontSee($record->token);
+        $this->get(route('admin.pendaftar.detail', $record))->assertNotFound();
+        $record->status = 'selesai';
+        $record->selesai_at = now();
+        $record->save();
+        $this->get(route('admin.pendaftar.index'))->assertOk()->assertSee($record->token);
+        $this->get(route('admin.pendaftar.detail', $record))->assertOk()->assertSee('Lihat Lampiran');
+        $this->get(route('admin.pendaftar.lampiran', [$record, 'akta_kelahiran']))->assertOk();
+        HakAkses::where('id_user', $admin->id)->whereHas('menu', fn ($q) => $q->where('route_name', 'admin.pendaftar.index'))->update(['lihat' => 0]);
+        $this->get(route('admin.pendaftar.index'))->assertForbidden();
+        $this->get(route('admin.pendaftar.detail', $record))->assertForbidden();
+        $this->get(route('admin.pendaftar.lampiran', [$record, 'akta_kelahiran']))->assertForbidden();
+    }
+
+    public function test_jenjang_and_payment_information(): void
+    {
+        Storage::fake('local');
+        $this->get('/spmb')->assertOk()->assertSee('6922406810')->assertSee('081905059919')
+            ->assertSee('name="jenjang"', false)->assertSee('SMP: Banin 20');
+        $data = $this->payload();
+        unset($data['jenjang']);
+        $this->postJson('/spmb', $data)->assertUnprocessable()->assertJsonValidationErrors('jenjang');
+        $data['jenjang'] = 'SMA';
+        $this->postJson('/spmb', $data)->assertUnprocessable()->assertJsonValidationErrors('jenjang');
+        $data['jenjang'] = 'SMP';
+        $data['jk'] = 'Putri (Banat)';
+        $this->postJson('/spmb', $data)->assertUnprocessable()->assertJsonValidationErrors('jk');
+        $data['jk'] = 'Putra (Banin)';
+        $this->postJson('/spmb', $data)->assertCreated();
+        $record = SpmbPendaftaran::latest('id')->firstOrFail();
+        $this->assertSame('SMP', $record->jenjang);
+        $this->get('/spmb/berhasil')->assertOk()->assertSee('SMP');
+        $data['jenjang'] = 'SD';
+        $data['jk'] = 'Putri (Banat)';
+        $this->postJson('/spmb', $data)->assertCreated();
+        $this->assertDatabaseHas('spmb_pendaftaran', ['jenjang' => 'SD', 'jk' => 'Putri (Banat)', 'nama' => $data['nama']]);
     }
 
     public function test_submission_saves_private_receipt_and_shows_confirmation(): void
@@ -102,7 +155,8 @@ class SpmbTest extends TestCase
         $this->assertStringStartsWith('https://wa.me/6281234567890?text=', $response->json('url'));
         $this->assertStringContainsString($form, rawurldecode($response->json('url')));
         $this->assertNotNull($record->fresh()->wa_dikirim_at);
-        $this->get($form)->assertOk()->assertSee('spmbUrl', false);
+        $this->get($form)->assertOk()->assertSee('1. Data Formulir')->assertSee('2. Berkas / Lampiran')->assertSee('3. Surat Pernyataan')->assertSee('0 dari 3 bagian selesai');
+        $this->get($form.'/isian')->assertOk()->assertSee('spmbUrl', false);
         $this->get('/spmb/formulir/INVALID000')->assertNotFound();
 
         $this->postJson($form, ['_selesai' => 1])->assertUnprocessable();
@@ -129,7 +183,8 @@ class SpmbTest extends TestCase
             'alamat' => 'Jalan Santri', 'jarak_sekolah' => 2.5, 'jumlah_saudara_kandung' => 2,
             'jenis_kebutuhan_khusus' => '02) Netra (A), 03) Rungu (B)', 'berkebutuhan_khusus' => 1,
         ]);
-        $this->get($form)->assertOk()->assertSee('Jalan Santri')->assertSee('Ayah Santri')->assertSee('Ibu Santri');
+        $this->get($form.'/isian')->assertOk()->assertSee('Jalan Santri')->assertSee('Ayah Santri')->assertSee('Ibu Santri');
+        $this->get($form)->assertOk()->assertSee('Draf tersimpan')->assertSee('0 dari 3 bagian selesai');
         $invalid = $data;
         $invalid['ibu']['nama_ibu'] = '';
         $this->putJson($form, $invalid + ['_selesai' => 1])->assertUnprocessable()->assertJsonValidationErrors('ibu.nama_ibu');
@@ -140,10 +195,89 @@ class SpmbTest extends TestCase
         $this->assertDatabaseHas('siswa', ['id' => $id, 'jenis_kebutuhan_khusus' => '', 'berkebutuhan_khusus' => 0]);
         $this->assertSame('selesai', $record->fresh()->status);
         $this->assertNotNull($record->fresh()->selesai_at);
-        $this->get($form)->assertOk()->assertSee('Formulir Telah Diterima');
+        $this->get($form.'/isian')->assertOk()->assertSee('Formulir Telah Diterima');
+        $this->get($form)->assertOk()->assertSee('1 dari 3 bagian selesai')->assertSee('Selesai · Formulir terkirim');
         $this->postJson($wa)->assertOk()->assertJsonPath('status', 'selesai');
         $this->putJson($form, ['nama_lengkap' => 'Perubahan setelah selesai'])->assertStatus(409);
         $this->getJson($form.'/data')->assertForbidden();
+    }
+
+    public function test_private_attachments_and_independent_registration_progress(): void
+    {
+        Storage::fake('local');
+        $this->postJson('/spmb', $this->payload())->assertCreated();
+        $record = SpmbPendaftaran::latest('id')->firstOrFail();
+        $index = route('spmb.formulir', $record->token);
+        $upload = route('spmb.lampiran.store', $record->token);
+        $fileUrl = route('spmb.lampiran.view', [$record->token, 'akta_kelahiran']);
+        $this->get($upload)->assertForbidden();
+        $this->postJson($upload, [])->assertForbidden();
+        $this->get($fileUrl)->assertForbidden();
+        $record->status = 'isi formulir';
+        $record->save();
+        $this->get($upload)->assertOk()->assertSee('Fotocopy Ijazah TK')->assertSee('baju putih berkerah')->assertSee('jilbab putih');
+        $this->postJson($upload, ['jenis' => 'unknown'])->assertUnprocessable()->assertJsonValidationErrors(['jenis', 'file']);
+        $this->postJson($upload, ['jenis' => 'akta_kelahiran', 'file' => UploadedFile::fake()->create('script.svg', 1, 'image/svg+xml')])
+            ->assertUnprocessable()->assertJsonValidationErrors('file');
+        $this->postJson($upload, ['jenis' => 'akta_kelahiran', 'file' => UploadedFile::fake()->create('besar.pdf', 5121, 'application/pdf')])
+            ->assertUnprocessable()->assertJsonValidationErrors('file');
+        $this->postJson($upload, ['jenis' => 'pas_foto', 'file' => UploadedFile::fake()->create('foto.pdf', 100, 'application/pdf')])
+            ->assertUnprocessable()->assertJsonValidationErrors('file');
+
+        foreach (['akta_kelahiran', 'kartu_keluarga', 'ktp_ayah', 'ktp_ibu'] as $jenis) {
+            $response = $this->postJson($upload, ['jenis' => $jenis, 'file' => UploadedFile::fake()->create($jenis.'.pdf', 100, 'application/pdf')])->assertOk();
+            $this->assertStringContainsString('Hapus berkas', $response->json('html'));
+            $this->assertStringContainsString(route('spmb.lampiran.delete', [$record->token, $jenis]), $response->json('html'));
+            $this->assertStringContainsString('upload-spinner', $response->json('html'));
+            $saved = $record->lampiran()->where('jenis', $jenis)->firstOrFail();
+            Storage::disk('local')->assertExists($saved->path);
+        }
+        $this->assertNull($record->fresh()->siswa_id); // Berkas dapat dilengkapi sebelum formulir.
+        $this->get($index)->assertOk()->assertSee('4 dari 5 berkas wajib')->assertSee('0 dari 3 bagian selesai');
+        $original = $record->lampiran()->where('jenis', 'akta_kelahiran')->firstOrFail();
+        Storage::disk('local')->assertExists($original->path);
+        $this->get($fileUrl)->assertOk()->assertHeader('Content-Type', 'application/pdf')->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->post($upload, ['jenis' => 'akta_kelahiran', 'file' => UploadedFile::fake()->create('akta-baru.pdf', 100, 'application/pdf')])->assertRedirect();
+        Storage::disk('local')->assertMissing($original->path);
+        $this->assertSame(4, $record->lampiran()->count());
+        $this->post($upload, ['jenis' => 'pas_foto', 'file' => UploadedFile::fake()->create('foto.png', 100, 'image/png')])->assertRedirect();
+        $this->get($index)->assertOk()->assertSee('1 dari 3 bagian selesai')->assertSee('Selesai · 5 dari 5 berkas wajib')->assertSee('Segera tersedia');
+
+        $data = ['nama_lengkap' => 'Uji Lampiran', 'jenis_kelamin' => 'L', 'ayah' => ['nama_ayah' => 'Ayah'], 'ibu' => ['nama_ibu' => 'Ibu'], '_selesai' => 1];
+        $this->postJson($index, $data)->assertOk();
+        $this->get($index)->assertOk()->assertSee('2 dari 3 bagian selesai')->assertDontSee('3 dari 3 bagian selesai');
+        $this->post($upload, ['jenis' => 'ijazah_tk', 'file' => UploadedFile::fake()->create('ijazah.pdf', 100, 'application/pdf')])->assertRedirect();
+        $this->assertSame(6, $record->lampiran()->count()); // Tetap dapat diunggah setelah formulir dikirim.
+
+        $other = SpmbPendaftaran::create([
+            'nama' => 'Pendaftar Lain', 'jk' => 'Putra (Banin)', 'jenjang' => 'SD',
+            'ortu' => 'Orang Tua Lain', 'wa' => '081234567899',
+            'bukti_path' => 'spmb/bukti/other.pdf', 'bukti_mime' => 'application/pdf',
+        ]);
+        $other->status = 'isi formulir';
+        $other->save();
+        $this->get(route('spmb.lampiran.view', [$other->token, 'akta_kelahiran']))->assertNotFound();
+        $this->get('/spmb/formulir/INVALID000/lampiran/akta_kelahiran')->assertNotFound();
+        $this->get(route('spmb.formulir', $other->token))->assertOk()->assertSee('0 dari 3 bagian selesai');
+
+        $this->get($upload)->assertOk()->assertSee('id="preview-dialog"', false)
+            ->assertSee('Perbesar Foto KTP Ayah')->assertSee('Hapus berkas')
+            ->assertSee('lampiran.js')->assertSee('lampiran.css');
+        $photo = $record->lampiran()->where('jenis', 'pas_foto')->firstOrFail();
+        $deleteUrl = route('spmb.lampiran.delete', [$record->token, 'pas_foto']);
+        $this->delete(route('spmb.lampiran.delete', [$other->token, 'pas_foto']))->assertNotFound();
+        $other->status = 'formulir';
+        $other->save();
+        $this->delete(route('spmb.lampiran.delete', [$other->token, 'pas_foto']))->assertForbidden();
+        Storage::disk('local')->assertExists($photo->path);
+        $this->delete('/spmb/formulir/INVALID000/lampiran/pas_foto')->assertNotFound();
+        $this->delete($deleteUrl)->assertRedirect($upload);
+        Storage::disk('local')->assertMissing($photo->path);
+        $this->assertDatabaseMissing('spmb_lampiran', ['id' => $photo->id]);
+        $this->get($index)->assertOk()->assertSee('1 dari 3 bagian selesai')->assertSee('Belum lengkap · 4 dari 5 berkas wajib');
+        $this->get(route('spmb.lampiran.view', [$record->token, 'pas_foto']))->assertNotFound();
+        $this->delete($deleteUrl)->assertNotFound();
+        $this->assertSame(5, $record->lampiran()->count());
     }
 
     public function test_registration_time_is_displayed_in_wita_and_tokens_are_distinct(): void

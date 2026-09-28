@@ -20,6 +20,7 @@
             <p><strong>Orang tua/wali:</strong> {{ $pendaftaran->ortu }}</p>
             <p><strong>No. HP / WhatsApp:</strong> {{ $pendaftaran->wa }}</p>
             <p><strong>Calon siswa:</strong> {{ $pendaftaran->nama }}</p>
+            <p><strong>Jenjang:</strong> {{ $pendaftaran->jenjang }}</p>
         </div>
         <p>Admin kami akan melakukan verifikasi dan mengirimkan formulir pendaftaran lewat WhatsApp.</p>
         <p class="signature">Ttd,<br><strong>Admin SPMB</strong></p>

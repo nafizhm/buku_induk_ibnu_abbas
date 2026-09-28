@@ -11,9 +11,11 @@
 <body>
 <main>
     <header>
+        <a href="{{ route('spmb.formulir', $spmb->token) }}" style="display:block;padding:10px 0;margin-bottom:12px;color:#693ca8;text-decoration:none;font-size:14px;font-weight:600">← Kembali ke Registrasi</a>
         <span class="badge">SPMB · RUMAH QUR'AN IBNU ABBAS</span>
         <h1>Formulir Peserta Didik</h1>
         <p>Lengkapi data Dapodik calon santri <strong>{{ $spmb->nama }}</strong>.</p>
+        <p>Jenjang pendaftaran: <strong>{{ $spmb->jenjang }}</strong></p>
         <p class="note">Isian bertanda <span class="req">*</span> wajib dilengkapi sebelum dikirim. Data wali bersifat opsional. Simpan draf untuk melanjutkan melalui tautan WA yang sama.</p>
     </header>
     <div id="feedback" role="status" aria-live="polite" hidden></div>
@@ -34,6 +36,11 @@
     const form = document.getElementById('dapodik-form');
     const feedback = document.getElementById('feedback');
     const spmbUrl = form.action;
+    @if($spmb->jenjang === 'SMP')
+    const gender = form.elements.namedItem('jenis_kelamin');
+    gender.querySelectorAll('option').forEach(option => { if (option.value !== 'L') option.remove(); });
+    gender.value = 'L';
+    @endif
     let dirty = false;
     form.addEventListener('input', () => { dirty = true; });
     form.addEventListener('change', () => { dirty = true; });

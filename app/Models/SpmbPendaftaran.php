@@ -9,11 +9,16 @@ class SpmbPendaftaran extends Model
 {
     protected $table = 'spmb_pendaftaran';
 
-    protected $fillable = ['nama', 'jk', 'ortu', 'wa', 'bukti_path', 'bukti_mime'];
+    protected $fillable = ['nama', 'jk', 'jenjang', 'ortu', 'wa', 'bukti_path', 'bukti_mime'];
 
     protected $attributes = ['status' => 'formulir'];
 
     protected $casts = ['wa_dikirim_at' => 'datetime', 'selesai_at' => 'datetime'];
+
+    public function lampiran()
+    {
+        return $this->hasMany(SpmbLampiran::class);
+    }
 
     protected static function booted(): void
     {
