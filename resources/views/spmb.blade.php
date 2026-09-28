@@ -403,17 +403,20 @@ $('frm').onsubmit=async(event)=>{
     const r=await fetch(fr.action,{method:'POST',body:fd,headers:{Accept:'application/json'}});
     const data=await r.json().catch(()=>({}));
     if(!r.ok){
-      const message=r.status===422 ? Object.values(data.errors||{}).flat().join('\n')
+      const message=r.status===422 ? (Object.values(data.errors||{}).flat().join('\n') || 'Data registrasi tidak valid. Periksa kembali isian dan bukti transfer.')
         : r.status===419 ? 'Sesi berakhir. Muat ulang halaman sebelum mengirim kembali.'
         : r.status===413 ? 'Ukuran unggahan terlalu besar. Pilih file yang lebih kecil.'
         : r.status===429 ? 'Terlalu banyak pengiriman. Tunggu sebentar lalu coba lagi.'
-        : 'Data belum dapat disimpan. Silakan coba lagi.';
-      throw new Error(message);
+        : data.error_code && data.message ? data.message
+        : `Server gagal memproses registrasi (HTTP ${r.status}). Hubungi admin untuk memeriksa server sebelum mengirim ulang.`;
+      throw new Error(message + (data.error_code ? ` Kode: ${data.error_code}.` : '') + (data.reference ? ` Referensi: ${data.reference}.` : ''));
     }
+    if(!data.redirect)throw new Error('Respons server tidak lengkap. Hubungi admin untuk memeriksa apakah registrasi sudah tersimpan sebelum mengirim ulang.');
     window.location.assign(data.redirect);
   }catch(e){
-    $('formError').textContent=e.message||'Pengiriman gagal. Periksa koneksi lalu coba lagi.';
+    $('formError').textContent=e instanceof TypeError ? 'Tidak dapat menerima respons server. Periksa koneksi internet dan hubungi admin untuk memastikan status registrasi sebelum mengirim ulang.' : (e.message||'Pengiriman gagal. Periksa koneksi lalu coba lagi.');
     $('formError').style.display='block';
+    $('formError').scrollIntoView({behavior:'smooth',block:'center'});
     $('send').disabled=false;$('send').textContent='Kirim';
   }
 };

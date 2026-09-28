@@ -20,5 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Throwable $exception, \Illuminate\Http\Request $request) {
+            if (! $request->isMethod('POST') || ! $request->is('spmb')) {
+                return null;
+            }
+            if ($exception instanceof \Illuminate\Validation\ValidationException
+                || ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+                    && $exception->getStatusCode() < 500)) {
+                return null;
+            }
+
+            return \App\Support\SpmbSubmissionError::response($exception);
+        });
     })->create();
