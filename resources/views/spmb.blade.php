@@ -179,7 +179,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 .mapcard{display:block;position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 10px 24px rgba(46,23,102,.14);text-decoration:none}
-.mapcard svg{display:block;width:100%;height:240px}
+.mapcard iframe{display:block;width:100%;height:300px;border:0}.map-directions{display:inline-block;margin-top:12px}
 .mapbadge{position:absolute;left:12px;bottom:12px;background:var(--p800);color:#fff;font-weight:700;font-size:14.5px;padding:10px 16px;border-radius:99px}
 .shot{display:block;text-decoration:none;color:var(--ink);cursor:zoom-in}
 .shot:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
@@ -304,19 +304,14 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 <section>
   <div class="eyebrow">LOKASI</div>
   <h2>Kunjungi kami</h2>
-  <a class="mapcard" href="https://maps.app.goo.gl/5oeJ9Yhw5zs2K4YA6" target="_blank" rel="noopener" aria-label="Buka lokasi di Google Maps">
-    <svg viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <rect width="600" height="360" fill="#ece5fa"/>
-      <path d="M0 250 C120 210 200 290 330 250 S520 200 600 230 V360 H0Z" fill="#cfe6f5"/>
-      <rect x="40" y="40" width="130" height="90" rx="14" fill="#cfe8d2"/>
-      <rect x="430" y="60" width="120" height="80" rx="14" fill="#cfe8d2"/>
-      <g stroke="#fff" stroke-linecap="round" fill="none"><path d="M-10 170 H610" stroke-width="16"/><path d="M300 -10 V200" stroke-width="16"/><path d="M0 60 L250 170" stroke-width="9"/><path d="M420 170 L600 100" stroke-width="9"/><path d="M110 170 V300" stroke-width="9"/></g>
-      <ellipse cx="300" cy="196" rx="26" ry="8" fill="rgba(46,23,102,.25)"/>
-      <path d="M300 190 C270 150 262 128 262 112 a38 38 0 0 1 76 0 c0 16 -8 38 -38 78z" fill="#4c2a94"/>
-      <circle cx="300" cy="112" r="14" fill="#c9a24a"/>
-    </svg>
-    <span class="mapbadge">Buka petunjuk arah →</span>
-  </a>
+  <div class="mapcard">
+    <iframe
+      src="https://www.google.com/maps?q=Rumah%20Quran%20Ibnu%20Abbas%20Jalan%20Satu%20Kampung%20Timur%20Gunung%20Samarinda%20Balikpapan&amp;output=embed"
+      title="Lokasi Rumah Qur'an Ibnu Abbas di Google Maps"
+      width="600" height="300" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+  </div>
+  <a class="map map-directions" href="https://maps.app.goo.gl/5oeJ9Yhw5zs2K4YA6" target="_blank" rel="noopener noreferrer">Buka petunjuk arah di Google Maps &rarr;</a>
   <div class="card" style="margin-top:12px">
     <b>Rumah Qur'an Ibnu Abbas</b>
     <p style="margin-top:4px">Jalan Satu Kampung Timur, Kel. Gunung Samarinda, Kec. Balikpapan Utara, Kaltim.</p>
