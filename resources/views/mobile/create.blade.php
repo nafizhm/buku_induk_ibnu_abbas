@@ -892,10 +892,14 @@
                 loadingHydrate: false,
                 error: '',
                 errors: {},
+                spmbUrl: @json(isset($spmb) ? route('spmb.formulir.store', $spmb->token) : null),
+                spmbId: @json($spmb->siswa_id ?? null),
+                storageKey: @json(isset($spmb) ? 'spmb_'.$spmb->token : 'siswa_daftar'),
                 async init() {
-                    this.id = localStorage.getItem('siswa_daftar_id') || null;
-                    const s = parseInt(localStorage.getItem('siswa_daftar_step') || '1', 10);
+                    this.id = this.spmbUrl ? this.spmbId : (localStorage.getItem(this.storageKey + '_id') || null);
+                    const s = parseInt(localStorage.getItem(this.storageKey + '_step') || '1', 10);
                     if (s >= 1 && s <= 4) this.step = s;
+                    if (!this.id) this.step = 1;
                     if (this.id) {
                         await this.hydrate();
                     }
@@ -904,11 +908,11 @@
                     if (!this.id) return;
                     this.loadingHydrate = true;
                     try {
-                        let res = await fetch('/mobile/siswa/' + this.id, {
+                        let res = await fetch(this.spmbUrl ? this.spmbUrl + '/data' : '/mobile/siswa/' + this.id, {
                             headers: { 'Accept': 'application/json' },
                         });
                         // fallback ke /siswa untuk kompatibilitas data lama
-                        if (!res.ok) {
+                        if (!res.ok && !this.spmbUrl) {
                             const alt = await fetch('/siswa/' + this.id, {
                                 headers: { 'Accept': 'application/json' },
                             });
@@ -931,8 +935,8 @@
                         console.warn('hydrate gagal', e);
                         // jika 404, bersihkan storage agar tidak stuck di step terakhir dengan data kosong
                         if (String(e).includes('404')) {
-                            localStorage.removeItem('siswa_daftar_id');
-                            localStorage.removeItem('siswa_daftar_step');
+                            localStorage.removeItem(this.storageKey + '_id');
+                            localStorage.removeItem(this.storageKey + '_step');
                             this.id = null;
                             this.step = 1;
                         }
@@ -1041,6 +1045,7 @@
                     return true;
                 },
                 async send(step, method, url) {
+                    if (this.spmbUrl) url = this.spmbUrl;
                     this.saving = true;
                     this.error = '';
                     const fd = this.collect(step);
@@ -1105,7 +1110,7 @@
                                 const r = await this.send(1, 'POST', '/mobile/siswa');
                                 console.log('POST success', r);
                                 this.id = r.id;
-                                localStorage.setItem('siswa_daftar_id', this.id);
+                                localStorage.setItem(this.storageKey + '_id', this.id);
                             } else {
                                 try {
                                     console.log('PUT /mobile/siswa/' + this.id + ' (update)');
@@ -1114,13 +1119,13 @@
                                     console.log('PUT failed, retrying POST');
                                     const r = await this.send(1, 'POST', '/mobile/siswa');
                                     this.id = r.id;
-                                    localStorage.setItem('siswa_daftar_id', this.id);
+                                    localStorage.setItem(this.storageKey + '_id', this.id);
                                 }
                             }
                         } else {
                             await this.send(this.step, 'PUT', '/mobile/siswa/' + this.id);
                         }
-                        localStorage.setItem('siswa_daftar_step', String(this.step + 1));
+                        localStorage.setItem(this.storageKey + '_step', String(this.step + 1));
                         this.step++;
                         console.log('NOW step=', this.step);
                     } catch (e) { console.error('NEXT error', e); }
@@ -1128,7 +1133,7 @@
                 back() {
                     if (this.step > 1) {
                         this.step--;
-                        localStorage.setItem('siswa_daftar_step', String(this.step));
+                        localStorage.setItem(this.storageKey + '_step', String(this.step));
                         // re-hydrate previous step data sudah ada di DOM setelah init, tidak perlu fetch ulang
                         // tapi pastikan select yang ter-hide tetap terisi - hydration sudah dilakukan di init
                     }
@@ -1137,9 +1142,9 @@
                     if (!this.validate(this.step)) return;
                     try {
                         await this.send(4, 'PUT', '/mobile/siswa/' + this.id);
-                        localStorage.removeItem('siswa_daftar_id');
-                        localStorage.removeItem('siswa_daftar_step');
-                        window.location.href = "{{ route('siswa.daftar.success') }}";
+                        localStorage.removeItem(this.storageKey + '_id');
+                        localStorage.removeItem(this.storageKey + '_step');
+                        window.location.href = this.spmbUrl || "{{ route('siswa.daftar.success') }}";
                     } catch (e) { /* error sudah di-set */ }
                 },
             };

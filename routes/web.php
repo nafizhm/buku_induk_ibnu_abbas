@@ -17,6 +17,13 @@ use App\Http\Controllers\Mobile\SiswaController as MobileSiswaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/spmb', 'spmb')->name('spmb');
+Route::post('/spmb', [\App\Http\Controllers\SpmbController::class, 'store'])->middleware('throttle:10,1')->name('spmb.store');
+Route::get('/spmb/berhasil', [\App\Http\Controllers\SpmbController::class, 'berhasil'])->name('spmb.berhasil');
+Route::get('/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'formulir'])->where('token', '[A-Za-z0-9]{10}')->name('spmb.formulir');
+Route::get('/spmb/formulir/{token}/data', [\App\Http\Controllers\SpmbController::class, 'dataFormulir'])->where('token', '[A-Za-z0-9]{10}')->middleware('throttle:60,1')->name('spmb.formulir.data');
+Route::match(['post', 'put'], '/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'simpanFormulir'])->where('token', '[A-Za-z0-9]{10}')->middleware('throttle:60,1')->name('spmb.formulir.store');
+
 Route::get('/', function () {
     if (Auth::check()) {
         $isOrangTua = \Illuminate\Support\Facades\DB::table('akun_siswa')
@@ -35,6 +42,9 @@ Route::group(['middleware' => 'guest'], function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('spmb', [\App\Http\Controllers\SpmbController::class, 'index'])->name('admin.spmb.index');
+    Route::post('spmb/{pendaftaran}/kirim-wa', [\App\Http\Controllers\SpmbController::class, 'kirimWa'])->whereNumber('pendaftaran')->name('admin.spmb.kirim-wa');
+    Route::get('spmb/{pendaftaran}/bukti', [\App\Http\Controllers\SpmbController::class, 'bukti'])->whereNumber('pendaftaran')->name('admin.spmb.bukti');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::prefix('master')->group(function () {
         Route::get('jenjang', [MasterKelasController::class, 'index'])->name('jenjang.index');

@@ -30,6 +30,7 @@ class SiswaController extends Controller
 
     public function show(Siswa $siswa)
     {
+        $this->authorizeSpmb($siswa);
         $siswa->load(['orangTua', 'prestasi', 'beasiswa']);
         $ot = $siswa->orangTua;
         $prestasi = $siswa->prestasi->first();
@@ -143,6 +144,7 @@ class SiswaController extends Controller
 
     public function update(Request $request, Siswa $siswa)
     {
+        $this->authorizeSpmb($siswa);
         $rules = array_intersect_key($this->rules(), $request->all());
         $data = $request->validate($rules);
 
@@ -156,6 +158,15 @@ class SiswaController extends Controller
         }
 
         return response()->json(['id' => $siswa->id, 'ok' => true]);
+    }
+
+    private function authorizeSpmb(Siswa $siswa): void
+    {
+        $spmb = \App\Models\SpmbPendaftaran::where('siswa_id', $siswa->id)->first();
+        if ($spmb) {
+            abort_unless($spmb->status === 'isi formulir'
+                && hash_equals($spmb->token, (string) request()->route('token')), 403);
+        }
     }
 
     private function rules(): array
