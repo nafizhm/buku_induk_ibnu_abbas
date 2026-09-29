@@ -10,6 +10,9 @@ class SpmbLandingTest extends TestCase
     {
         $this->get('/spmb')->assertOk()
             ->assertSee('SPMB SD')
+            ->assertSee('Paket A (MSU/SD)')
+            ->assertSee('galeri/foto-5.jpeg', false)
+            ->assertDontSee('galeri/foto-1.jpeg', false)
             ->assertSee('Rp650.000')
             ->assertSee('name="jenjang" value="SD"', false)
             ->assertDontSee('Daftar SMP')
@@ -20,7 +23,9 @@ class SpmbLandingTest extends TestCase
     {
         $this->get('/spmb-smp')->assertOk()
             ->assertSee('2027/2028')
-            ->assertSee('Paket Kesetaraan B (MSW/SMP)')
+            ->assertSee('Paket B (MSW/SD)')
+            ->assertSee('galeri/foto-1.jpeg', false)
+            ->assertDontSee('galeri/foto-5.jpeg', false)
             ->assertSee('Rp1.650.000')
             ->assertSee('30 santri')
             ->assertSee('20 santri')

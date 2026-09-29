@@ -189,7 +189,7 @@
     @endif
 
     @if($profileForm === 'dapodik')
-      <div class="dapodik-page-intro"><a href="{{ route('orang-tua.profil') }}">← Kembali ke Profil</a><h2>Formulir Peserta Didik</h2><p>Periksa dan lengkapi seluruh kelompok data sesuai formulir Dapodik.</p></div>
+      <div class="dapodik-page-intro"><a href="{{ route('orang-tua.profil') }}">← Kembali ke Profil</a><h2>Formulir Peserta Didik</h2><p>Isi data yang tersedia. Data belum lengkap tetap dapat disimpan dan dilengkapi nanti.</p></div>
       @include('orang-tua.partials.profil-siswa-dapodik')
       @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ayah'])
       @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => 'ibu'])

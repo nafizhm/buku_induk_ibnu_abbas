@@ -60,7 +60,7 @@ class OrangTuaPortalController extends Controller
             abort(404);
         }
 
-        $data = $this->validateSection($request, $section);
+        $data = $this->validateSection($request, $section, $section !== 'akun');
 
         if ($section === 'akun') {
             $account = Auth::user();
@@ -68,6 +68,9 @@ class OrangTuaPortalController extends Controller
             if (! empty($data['fields']['akun']['password'])) $account->password = $data['fields']['akun']['password'];
             $account->save();
         } elseif ($section === 'siswa') {
+            if (empty($data['fields']['nama_lengkap'])) {
+                unset($data['fields']['nama_lengkap']);
+            }
             $siswa->update($this->mapSiswaFields($data['fields']));
         } else {
             $ot = $siswa->orangTua()->firstOrNew([]);
@@ -172,6 +175,7 @@ class OrangTuaPortalController extends Controller
             'orangTua' => $siswa->orangTua,
             'activeView' => $activeView,
             'profileForm' => null,
+            'allowIncomplete' => true,
             'profileSummary' => $this->profileSummary(),
             'presensiData' => $this->mockPresensi(),
             'hafalanData' => $this->mockHafalan(),

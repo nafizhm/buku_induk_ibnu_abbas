@@ -11,6 +11,36 @@ class OrangTuaProfilSiswaDapodikTest extends TestCase
 {
     use DatabaseTransactions;
 
+    public function test_incomplete_dapodik_can_be_saved_without_losing_student_name(): void
+    {
+        $user = User::whereHas('siswa')->firstOrFail();
+        $siswa = $user->siswa()->firstOrFail();
+        $originalName = $siswa->nama_lengkap;
+        $this->actingAs($user);
+
+        $html = $this->get(route('orang-tua.profil', ['form' => 'dapodik']))
+            ->assertOk()->getContent();
+        $this->assertDoesNotMatchRegularExpression('/<(?:input|select)[^>]*\brequired\b/i', $html);
+
+        $this->postJson(route('orang-tua.profil.update', 'siswa'), [
+            'nama_lengkap' => '', 'jenis_kelamin' => '', 'alamat' => 'Alamat sementara',
+        ])->assertOk()->assertJsonPath('ok', true);
+        $this->assertSame($originalName, $siswa->fresh()->nama_lengkap);
+        $this->assertSame('Alamat sementara', $siswa->fresh()->alamat);
+
+        foreach (['ayah', 'ibu', 'wali'] as $section) {
+            $this->postJson(route('orang-tua.profil.update', $section), [
+                $section => ['nama_'.$section => '', 'nik_'.$section => '1234'],
+            ])->assertOk()->assertJsonPath('ok', true);
+            $this->assertDatabaseHas('orang_tua', ['siswa_id' => $siswa->id, 'nik_'.$section => '1234']);
+        }
+
+        $this->postJson(route('orang-tua.profil.update', 'siswa'), ['email' => 'invalid'])
+            ->assertUnprocessable()->assertJsonValidationErrors('email');
+        $this->postJson(route('orang-tua.profil.update', 'akun'), ['akun' => ['nama' => '']])
+            ->assertUnprocessable()->assertJsonValidationErrors('akun.nama');
+    }
+
     public function test_profile_landing_shows_account_and_dapodik_button_without_summary(): void
     {
         $user = User::whereHas('siswa')->firstOrFail();

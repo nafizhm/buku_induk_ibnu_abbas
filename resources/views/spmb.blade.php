@@ -1,4 +1,6 @@
-@php($isSmp = $isSmp ?? false)
+@php
+  $isSmp = $isSmp ?? false;
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -205,7 +207,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
     <img class="logo" src="{{ asset('assets/spmb/logo-pkbm.jpg') }}" alt="Logo Rumah Qur'an Ibnu Abbas">
     <span class="badge">Pendaftaran Online · TP 2027/2028</span>
     <h1>Penerimaan <span>Santri Baru</span></h1>
-    <p class="sub">PKBM Ibnu Abbas · {{ $isSmp ? 'Paket Kesetaraan B (MSW/SMP) · Khusus Putra · NPSN P2971339' : 'Pendaftaran SD (Banin & Banat). Daftar dari rumah, cukup lewat HP.' }}</p>
+    <p class="sub">PKBM Ibnu Abbas · {{ $isSmp ? 'Paket B (MSW/SD) · Khusus Putra · NPSN P2971339' : 'Paket A (MSU/SD) · Pendaftaran SD (Banin & Banat). Daftar dari rumah, cukup lewat HP.' }}</p>
     @if($isSmp)<p class="sub">Rumah Qur'an Ibnu Abbas, Jalan Satu Kampung Timur, Gunung Samarinda, Balikpapan Utara, Kaltim.</p>@endif
     <div class="jenjang-pilihan" id="pilih-jenjang">
       @unless($isSmp)
@@ -249,9 +251,14 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   <h2>Sekilas Rumah Qur'an</h2>
   <p class="lead">Geser untuk melihat kegiatan dan lingkungan belajar santri. Klik foto untuk memperbesar.</p>
   <div class="gal">
-    @foreach (['Kebersamaan santri di pantai', 'Kegiatan santri di Kilang Mandiri', 'Ruang ibadah dan belajar', 'Kebersamaan santriwati di sekolah', 'Kegiatan belajar di kelas', 'Belajar Al-Quran bersama', 'Pendampingan membaca Al-Quran', 'Suasana belajar santriwati', 'Ruang administrasi sekolah', 'Asrama santri'] as $caption)
-      <a class="shot" href="{{ asset('assets/spmb/galeri/foto-' . $loop->iteration . '.jpeg') }}" data-gallery aria-label="Perbesar foto: {{ $caption }}">
-        <img src="{{ asset('assets/spmb/galeri/foto-' . $loop->iteration . '.jpeg') }}" alt="{{ $caption }}" width="1280" height="960" loading="lazy" decoding="async">
+    @php
+      $gallery = $isSmp
+        ? [1 => 'Kebersamaan santri di pantai', 2 => 'Kegiatan santri di Kilang Mandiri', 3 => 'Ruang ibadah dan belajar', 9 => 'Ruang administrasi sekolah', 10 => 'Asrama santri']
+        : [4 => 'Kebersamaan santriwati di sekolah', 5 => 'Kegiatan belajar di kelas', 6 => 'Belajar Al-Quran bersama', 7 => 'Pendampingan membaca Al-Quran', 8 => 'Suasana belajar santriwati', 3 => 'Ruang ibadah dan belajar', 9 => 'Ruang administrasi sekolah'];
+    @endphp
+    @foreach ($gallery as $photo => $caption)
+      <a class="shot" href="{{ asset('assets/spmb/galeri/foto-' . $photo . '.jpeg') }}" data-gallery aria-label="Perbesar foto: {{ $caption }}">
+        <img src="{{ asset('assets/spmb/galeri/foto-' . $photo . '.jpeg') }}" alt="{{ $caption }}" width="1280" height="960" loading="lazy" decoding="async">
         <span>{{ $caption }}</span>
       </a>
     @endforeach
