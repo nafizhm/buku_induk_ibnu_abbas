@@ -83,6 +83,39 @@ class AdminSiswaMenuTest extends TestCase
         }
     }
 
+    public function test_class_list_returns_every_row_and_data_filling_status(): void
+    {
+        $this->actingAs($this->admin());
+        $total = Kelas::count();
+        $this->assertGreaterThan(10, $total, 'Butuh lebih dari 10 kelas agar pengujian pagination bermakna.');
+
+        $this->get(route('kelas.index'))->assertOk()
+            ->assertSee('Status Data')
+            ->assertSee('paging:false', false)
+            ->assertSee('status_data', false);
+
+        // DataTables tetap mengirim length 10, server harus mengirim seluruh baris tanpa paging.
+        $response = $this->getJson(route('kelas.index', ['draw' => 1, 'start' => 0, 'length' => 10]), ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data'])
+            ->assertJsonCount($total, 'data');
+
+        $kelas = Kelas::has('siswa')->firstOrFail();
+        $sudahMengisi = $kelas->siswa()->whereHas('orangTua', fn ($query) => $query
+            ->where(fn ($data) => $data->where('nama_ayah', '<>', '')->orWhere('nama_ibu', '<>', '')))->count();
+        $row = collect($response->json('data'))->firstWhere('id_kelas', $kelas->id_kelas);
+
+        $this->assertNotNull($row);
+        $this->assertStringContainsString('>'.$sudahMengisi.' / '.$kelas->siswa()->count().'</span>', $row['status_data']);
+        $this->assertStringContainsString('sudah mengisi', $row['status_data']);
+
+        $kosong = Kelas::doesntHave('siswa')->first();
+        if ($kosong) {
+            $emptyRow = collect($response->json('data'))->firstWhere('id_kelas', $kosong->id_kelas);
+            $this->assertStringContainsString('Belum ada siswa', $emptyRow['status_data']);
+        }
+    }
+
     public function test_existing_student_can_be_updated_with_parent_data(): void
     {
         $siswa = Siswa::with('orangTua')->findOrFail(196);
