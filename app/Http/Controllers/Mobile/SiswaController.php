@@ -164,7 +164,8 @@ class SiswaController extends Controller
     {
         $spmb = \App\Models\SpmbPendaftaran::where('siswa_id', $siswa->id)->first();
         if ($spmb) {
-            abort_unless($spmb->status === 'isi formulir'
+            abort_unless(($spmb->status === 'isi formulir'
+                    || ($spmb->status === 'selesai' && request()->routeIs('spmb.formulir.data') && request()->isMethod('GET')))
                 && hash_equals($spmb->token, (string) request()->route('token')), 403);
         }
     }

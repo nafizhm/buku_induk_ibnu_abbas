@@ -18,10 +18,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/spmb', 'spmb')->name('spmb');
+Route::view('/spmb-smp', 'spmb', ['isSmp' => true])->name('spmb.smp');
 Route::post('/spmb', [\App\Http\Controllers\SpmbController::class, 'store'])->middleware('throttle:10,1')->name('spmb.store');
 Route::get('/spmb/berhasil', [\App\Http\Controllers\SpmbController::class, 'berhasil'])->name('spmb.berhasil');
 Route::get('/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'formulir'])->where('token', '[A-Za-z0-9]{10}')->name('spmb.formulir');
 Route::prefix('/spmb/formulir/{token}')->where(['token' => '[A-Za-z0-9]{10}'])->group(function () {
+    Route::get('/pernyataan-wawancara', [\App\Http\Controllers\SpmbController::class, 'dokumen'])->name('spmb.dokumen');
+    Route::get('/pernyataan', [\App\Http\Controllers\SpmbController::class, 'dokumen'])->name('spmb.pernyataan');
+    Route::get('/wawancara', [\App\Http\Controllers\SpmbController::class, 'dokumen'])->name('spmb.wawancara');
+    Route::post('/pernyataan', [\App\Http\Controllers\SpmbController::class, 'simpanPernyataan'])->middleware('throttle:30,1')->name('spmb.pernyataan.store');
+    Route::post('/wawancara', [\App\Http\Controllers\SpmbController::class, 'simpanWawancara'])->middleware('throttle:30,1')->name('spmb.wawancara.store');
     Route::get('/isian', [\App\Http\Controllers\SpmbController::class, 'isian'])->name('spmb.formulir.isian');
     Route::get('/lampiran', [\App\Http\Controllers\SpmbController::class, 'lampiran'])->name('spmb.lampiran');
     Route::post('/lampiran', [\App\Http\Controllers\SpmbController::class, 'uploadLampiran'])->middleware('throttle:30,1')->name('spmb.lampiran.store');
@@ -49,6 +55,24 @@ Route::group(['middleware' => 'guest'], function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::resource('template', \App\Http\Controllers\TemplateController::class)->names('admin.template');
+    foreach (['admin.pendaftar' => 'pendaftar', 'admin.smp.pendaftar' => 'spmb-smp/pendaftar'] as $name => $path) {
+        foreach (['pernyataan', 'wawancara'] as $jenis) {
+            Route::get($path.'/{pendaftaran}/'.$jenis, [\App\Http\Controllers\SpmbController::class, 'adminDokumen'])->whereNumber('pendaftaran')->name($name.'.'.$jenis);
+        }
+        Route::get($path.'/download', [\App\Http\Controllers\SpmbController::class, 'downloadPendaftar'])->name($name.'.download');
+        Route::get($path.'/{pendaftaran}/download', [\App\Http\Controllers\SpmbController::class, 'downloadPendaftarSatu'])->whereNumber('pendaftaran')->name($name.'.download-one');
+    }
+    Route::prefix('spmb-smp')->name('admin.smp.')->group(function () {
+        Route::get('formulir', [\App\Http\Controllers\SpmbController::class, 'index'])->name('spmb.index');
+        Route::get('pendaftar', [\App\Http\Controllers\SpmbController::class, 'pendaftar'])->name('pendaftar.index');
+        foreach (['spmb' => 'formulir', 'pendaftar' => 'pendaftar'] as $menu => $path) {
+            Route::get($path.'/{pendaftaran}/detail', [\App\Http\Controllers\SpmbController::class, 'detail'])->whereNumber('pendaftaran')->name($menu.'.detail');
+            Route::get($path.'/{pendaftaran}/lampiran/{jenis}', [\App\Http\Controllers\SpmbController::class, 'adminLampiran'])->whereNumber('pendaftaran')->name($menu.'.lampiran');
+            Route::get($path.'/{pendaftaran}/bukti', [\App\Http\Controllers\SpmbController::class, 'bukti'])->whereNumber('pendaftaran')->name($menu.'.bukti');
+        }
+        Route::post('formulir/{pendaftaran}/kirim-wa', [\App\Http\Controllers\SpmbController::class, 'kirimWa'])->whereNumber('pendaftaran')->name('spmb.kirim-wa');
+    });
     Route::get('pendaftar', [\App\Http\Controllers\SpmbController::class, 'pendaftar'])->name('admin.pendaftar.index');
     foreach (['spmb', 'pendaftar'] as $menu) {
         Route::get($menu.'/{pendaftaran}/detail', [\App\Http\Controllers\SpmbController::class, 'detail'])->whereNumber('pendaftaran')->name('admin.'.$menu.'.detail');

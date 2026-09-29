@@ -5,6 +5,8 @@ use App\Models\Barang;
 use App\Models\Hutang;
 use App\Models\Piutang;
 use App\Models\SalesOrder;
+use App\Models\HakAkses;
+use App\Models\SpmbPendaftaran;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -70,7 +72,24 @@ class DashboardController extends Controller
         //     12 => 'Desember',
         // ];
 
-        return view('admin.dashboard.dashboard');
+        $allowedRoutes = HakAkses::where('id_user', auth()->id())->where('lihat', 1)
+            ->with('menu')->get()->pluck('menu.route_name');
+        $spmbStatistik = [];
+        foreach (['SD' => 'admin', 'SMP' => 'admin.smp'] as $jenjang => $prefix) {
+            foreach (SpmbPendaftaran::FILTERS as $filter => $label) {
+                $route = $prefix.($filter === 'lengkap' ? '.pendaftar.index' : '.spmb.index');
+                if (! $allowedRoutes->contains($route)) {
+                    continue;
+                }
+                $spmbStatistik[$jenjang][$filter] = [
+                    'label' => $label,
+                    'jumlah' => SpmbPendaftaran::where('jenjang', $jenjang)->statistik($filter)->count(),
+                    'url' => route($route, ['filter' => $filter]),
+                ];
+            }
+        }
+
+        return view('admin.dashboard.dashboard', compact('spmbStatistik'));
     }
 
     public function filter(Request $request)

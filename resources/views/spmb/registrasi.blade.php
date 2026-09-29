@@ -8,8 +8,8 @@
     </header>
     <section class="summary" aria-label="Progres registrasi">
         <div class="identity"><div><p>Calon santri</p><strong>{{ $spmb->nama }}</strong></div><span class="tag">{{ $spmb->jenjang }} · {{ $spmb->jk }}</span></div>
-        <div class="progress-label"><span>Kelengkapan registrasi</span><strong>{{ $completed }} dari 3 bagian selesai</strong></div>
-        <progress value="{{ $completed }}" max="3" aria-label="Bagian registrasi selesai">{{ $completed }} dari 3</progress>
+        <div class="progress-label"><span>Kelengkapan registrasi</span><strong>{{ $completed }} dari 4 bagian selesai</strong></div>
+        <progress value="{{ $completed }}" max="4" aria-label="Bagian registrasi selesai">{{ $completed }} dari 4</progress>
     </section>
     <p class="section-label">DATA REGISTRASI</p>
     <a class="menu-card" href="{{ route('spmb.formulir.isian', $spmb->token) }}">
@@ -22,9 +22,13 @@
         <div class="menu-content"><h2>2. Berkas / Lampiran</h2><p>Unggah dokumen pendukung dan pas foto. Ijazah TK bersifat opsional.</p><span class="status {{ $filesComplete ? 'done' : '' }}">{{ $filesComplete ? 'Selesai' : 'Belum lengkap' }} · {{ $uploaded }} dari 5 berkas wajib</span></div>
         <span class="arrow" aria-hidden="true">›</span>
     </a>
-    <div class="menu-card" aria-disabled="true">
-        <span class="number" aria-hidden="true">03</span>
-        <div class="menu-content"><h2>3. Surat Pernyataan</h2><p>Formulir pernyataan akan tersedia setelah disiapkan oleh pihak sekolah.</p><span class="status pending">Segera tersedia</span></div>
-    </div>
-    <div class="info">Tanda ✓ menunjukkan bagian sudah dilengkapi. Silakan selesaikan Data Formulir dan Berkas terlebih dahulu sambil menunggu Surat Pernyataan tersedia.</div>
+    @foreach(['pernyataan' => '3. Surat Pernyataan', 'wawancara' => '4. Wawancara'] as $jenis => $judul)
+        @php($done = (bool) $spmb->{$jenis.'_at'})
+        <a class="menu-card" href="{{ route('spmb.'.$jenis, $spmb->token) }}">
+            <span class="number {{ $done ? 'done' : '' }}" aria-hidden="true">{{ $done ? '✓' : ($jenis === 'pernyataan' ? '03' : '04') }}</span>
+            <div class="menu-content"><h2>{{ $judul }}</h2><p>{{ $jenis === 'pernyataan' ? 'Baca dan setujui peraturan serta kesanggupan membayar biaya pendidikan.' : 'Isi wawancara orang tua / wali sesuai jenjang calon santri.' }}</p><span class="status {{ $done ? 'done' : '' }}">{{ $done ? 'Selesai · Tersimpan' : 'Belum diisi' }}</span></div>
+            <span class="arrow" aria-hidden="true">›</span>
+        </a>
+    @endforeach
+    <div class="info">Tanda ✓ menunjukkan bagian sudah dilengkapi. Lengkapi keempat bagian registrasi melalui tautan ini.</div>
 @endsection

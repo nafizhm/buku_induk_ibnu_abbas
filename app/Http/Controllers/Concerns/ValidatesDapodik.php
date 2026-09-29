@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 trait ValidatesDapodik
 {
-    private function validateSection(Request $request, string $section): array
+    private function validateSection(Request $request, string $section, bool $allowIncomplete = false): array
     {
         $rules = match ($section) {
             'akun' => [
@@ -88,6 +88,10 @@ trait ValidatesDapodik
                 ->mapWithKeys(fn($rule, $name) => ["{$section}.{$name}" => $rule])
                 ->all(),
         };
+
+        if ($allowIncomplete) {
+            $rules = array_map(fn ($rule) => str_replace('required', 'nullable', $rule), $rules);
+        }
 
         return ['fields' => $request->validate($rules)];
     }

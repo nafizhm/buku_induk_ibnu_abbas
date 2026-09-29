@@ -46,7 +46,7 @@
     <div class="dapodik-grid">
       @foreach($fields as $field)
       @php
-        [$name,$label,$type]=array_slice($field,0,3);$options=$field[3]??[];$required=$field[4]??false;
+        [$name,$label,$type]=array_slice($field,0,3);$options=$field[3]??[];$required= !($allowIncomplete ?? false) && ($field[4]??false);
         $value=old($familySection.'.'.$name,data_get($orangTua,$name));$selected=is_array($value) ? $value : collect(explode(', ',(string)$value))->filter()->all();
       @endphp
       <div class="form-group {{ $type==='multiple' ? 'field-wide' : '' }}">

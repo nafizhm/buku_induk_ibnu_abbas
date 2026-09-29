@@ -2,10 +2,23 @@
 
 @section('content')
 @php($isPendaftar = $isPendaftar ?? false)
-@php($routePrefix = $isPendaftar ? 'admin.pendaftar' : 'admin.spmb')
 <div class="page-content"><section class="section"><div class="card">
-    <div class="card-header"><h3 class="card-title">{{ $isPendaftar ? 'Pendaftar' : 'SPMB - Pendaftaran Awal' }}</h3></div>
+    <div class="card-header"><h3 class="card-title">SPMB {{ $jenjang }} - {{ $isPendaftar ? 'Pendaftar' : 'Formulir' }}</h3></div>
     <div class="card-body">
+        <form method="GET" action="{{ route($routePrefix.'.index') }}" class="d-flex flex-wrap align-items-end gap-2 mb-3">
+            <div>
+                <label for="filter-statistik" class="form-label">Filter statistik</label>
+                <select name="filter" id="filter-statistik" class="form-select">
+                    @foreach(\App\Models\SpmbPendaftaran::FILTERS as $value => $label)
+                        <option value="{{ $value }}" @selected($filter === $value)>{{ $value === 'semua' && $isPendaftar ? 'Semua Pendaftar' : $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button class="btn btn-primary" type="submit">Tampilkan</button>
+            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
+            @if($isPendaftar)<a href="{{ route($routePrefix.'.download', ['filter' => $filter]) }}" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Download Excel (Daftar Ini)</a>@endif
+            <span class="text-muted pb-2">{{ $pendaftaran->count() }} data</span>
+        </form>
         @if($isPendaftar)<p class="text-muted">Pendaftar yang sudah mengirim data formulir.</p>@else
         <p class="text-muted">Kirim WA membuka pesan siap kirim dan menandai status isi formulir. Tekan Kirim di WhatsApp untuk mengirim pesannya.</p>@endif
         <div id="waError" class="alert alert-danger d-none" role="alert"></div>
@@ -21,7 +34,12 @@
                         <td class="spmb-status"><span class="badge {{ $item->status === 'selesai' ? 'bg-success' : ($item->status === 'isi formulir' ? 'bg-info' : 'bg-secondary') }}">{{ $item->status }}</span></td>
                         <td><div class="d-flex flex-wrap gap-1">                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#buktiModal" data-url="{{ route($routePrefix.'.bukti', $item) }}" data-mime="{{ $item->bukti_mime }}" data-nama="{{ $item->nama }}">Lihat Bukti</button>
 @if($isPendaftar)<a class="btn btn-sm btn-info" href="{{ route($routePrefix.'.detail', $item) }}">Detail / Lampiran</a>@endif
-@if(!$isPendaftar)<button type="button" class="btn btn-sm btn-success kirim-wa" data-url="{{ route('admin.spmb.kirim-wa', $item) }}">Kirim WA</button>@endif</div></td>
+@if($isPendaftar)
+<a class="btn btn-sm {{ $item->pernyataan_at ? 'btn-success' : 'btn-outline-secondary' }}" href="{{ route($routePrefix.'.pernyataan', $item) }}">Pernyataan{{ $item->pernyataan_at ? ' ✓' : ' (Belum)' }}</a>
+<a class="btn btn-sm {{ $item->wawancara_at ? 'btn-success' : 'btn-outline-secondary' }}" href="{{ route($routePrefix.'.wawancara', $item) }}">Wawancara{{ $item->wawancara_at ? ' ✓' : ' (Belum)' }}</a>
+@endif
+@if($isPendaftar)<a class="btn btn-sm btn-success" href="{{ route($routePrefix.'.download-one', $item) }}"><i class="bi bi-file-earmark-excel"></i> Download Excel</a>@endif
+@if(!$isPendaftar)<button type="button" class="btn btn-sm btn-success kirim-wa" data-url="{{ route($routePrefix.'.kirim-wa', $item) }}">Kirim WA</button>@endif</div></td>
                     </tr>
                 @endforeach
             </tbody>
@@ -57,8 +75,8 @@
                 const response = await fetch(button.dataset.url, {
                     method: 'POST', headers: {'Accept': 'application/json', 'X-CSRF-TOKEN': @json(csrf_token())}
                 });
-                if (!response.ok) throw new Error('Tidak dapat menyiapkan pesan WhatsApp. Muat ulang halaman dan coba lagi.');
                 const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Tidak dapat menyiapkan pesan WhatsApp. Muat ulang halaman dan coba lagi.');
                 tab.location.href = data.url;
                 const badge = button.closest('tr').querySelector('.spmb-status .badge');
                 badge.textContent = data.status;

@@ -192,9 +192,8 @@ class SiswaController extends Controller
         return response($html)->header('Content-Type','application/vnd.ms-excel; charset=UTF-8')->header('Content-Disposition','attachment; filename="'.$filename.'"');
     }
 
-    public function downloadSiswa(Siswa $siswa)
+    public static function excelSections(): array
     {
-        $siswa->load(['kelas','orangTua']);
         $studentFields = [
             'Nama Lengkap'=>'nama_lengkap','Jenis Kelamin'=>'jenis_kelamin','NISN'=>'nisn','NIK / No. KITAS'=>'nik','Nomor KK'=>'no_kk',
             'Tempat Lahir'=>'tempat_lahir','Tanggal Lahir'=>'tanggal_lahir','Nomor Registrasi Akta Lahir'=>'no_akta','Agama dan Kepercayaan'=>'agama',
@@ -227,6 +226,26 @@ class SiswaController extends Controller
                 'Pendidikan'=>'orangTua.pendidikan_wali','Pekerjaan'=>'orangTua.pekerjaan_wali','Penghasilan Bulanan'=>'orangTua.penghasilan_wali',
             ],
         ];
+        $sections['Data Siswa'] += [
+            'Nama Panggilan' => 'nama_panggilan', 'Kabupaten / Kota' => 'kabupaten_kota', 'Provinsi' => 'provinsi',
+            'Nomor HP Darurat' => 'no_hp_darurat', 'Golongan Darah' => 'golongan_darah',
+            'Saudara Tiri' => 'jumlah_saudara_tiri', 'Saudara Angkat' => 'jumlah_saudara_angkat',
+            'Status Anak' => 'status_anak', 'Status dalam Keluarga' => 'status_dalam_keluarga',
+            'Tahun Ajaran Masuk' => 'tahun_ajaran_masuk', 'Kelas Saat Masuk' => 'kelas_saat_masuk',
+            'NPSN Sekolah Asal' => 'npsn_sekolah_asal', 'Nomor Ijazah Sebelumnya' => 'no_ijazah_sebelumnya',
+            'Nomor SKHUN / STTB' => 'no_skhun_sttb', 'Riwayat Kesehatan' => 'riwayat_kesehatan',
+        ];
+        $sections['Data Ayah']['Nomor Telepon'] = 'orangTua.no_telp_ayah';
+        $sections['Data Ibu']['Nomor Telepon'] = 'orangTua.no_telp_ibu';
+        $sections['Data Wali']['Hubungan dengan Siswa'] = 'orangTua.hubungan_wali';
+
+        return $sections;
+    }
+
+    public function downloadSiswa(Siswa $siswa)
+    {
+        $siswa->load(['kelas','orangTua']);
+        $sections = self::excelSections();
         $escape = fn ($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
         $html = '<html><head><meta charset="UTF-8"><style>td{mso-number-format:"\\@";padding:5px}.title{font-size:16px;font-weight:bold;color:#fff}.siswa{background:#2563eb}.ayah{background:#16a34a}.ibu{background:#db2777}.wali{background:#d97706}.label{font-weight:bold;background:#f3f4f6}.colon{text-align:center;font-weight:bold;width:25px}</style></head><body><table border="1">';
         foreach ($sections as $title => $fields) {

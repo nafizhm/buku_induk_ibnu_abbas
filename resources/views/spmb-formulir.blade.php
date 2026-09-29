@@ -13,22 +13,28 @@
     <header>
         <a href="{{ route('spmb.formulir', $spmb->token) }}" style="display:block;padding:10px 0;margin-bottom:12px;color:#693ca8;text-decoration:none;font-size:14px;font-weight:600">← Kembali ke Registrasi</a>
         <span class="badge">SPMB · RUMAH QUR'AN IBNU ABBAS</span>
-        <h1>Formulir Peserta Didik</h1>
+        <h1>{{ $spmb->status === 'selesai' ? 'Edit Data Formulir' : 'Formulir Peserta Didik' }}</h1>
         <p>Lengkapi data Dapodik calon santri <strong>{{ $spmb->nama }}</strong>.</p>
         <p>Jenjang pendaftaran: <strong>{{ $spmb->jenjang }}</strong></p>
-        <p class="note">Isian bertanda <span class="req">*</span> wajib dilengkapi sebelum dikirim. Data wali bersifat opsional. Simpan draf untuk melanjutkan melalui tautan WA yang sama.</p>
+        @if($spmb->status === 'selesai')
+            <p class="note">Perbarui data yang diperlukan, lalu klik Simpan Perubahan.</p>
+        @elseif(config('spmb.allow_incomplete_forms'))
+            <p class="note">Untuk sementara, formulir dapat disimpan atau dikirim meskipun belum lengkap. Simpan draf jika ingin melanjutkan pengisian nanti.</p>
+        @else
+            <p class="note">Isian bertanda <span class="req">*</span> wajib dilengkapi sebelum dikirim. Data wali bersifat opsional. Simpan draf untuk melanjutkan melalui tautan WA yang sama.</p>
+        @endif
     </header>
     <div id="feedback" role="status" aria-live="polite" hidden></div>
     <form id="dapodik-form" action="{{ route('spmb.formulir.store', $spmb->token) }}" method="post">
         @csrf
-        @include('orang-tua.partials.profil-siswa-dapodik', ['showSaveButton' => false])
+        @include('orang-tua.partials.profil-siswa-dapodik', ['showSaveButton' => false, 'allowIncomplete' => config('spmb.allow_incomplete_forms')])
         @foreach(['ayah', 'ibu', 'wali'] as $section)
-            @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => $section, 'showSaveButton' => false])
+            @include('orang-tua.partials.profil-keluarga-dapodik', ['familySection' => $section, 'showSaveButton' => false, 'allowIncomplete' => config('spmb.allow_incomplete_forms')])
         @endforeach
-        <p class="note">Periksa kembali data sebelum dikirim. Setelah dikirim, formulir tidak dapat diubah melalui tautan ini.</p>
+        <p class="note">Periksa kembali data sebelum disimpan. Data dapat diperbarui melalui tombol Edit Data Formulir.</p>
         <div class="actions">
-            <button type="submit" class="secondary" value="draft" formnovalidate>Simpan Draf</button>
-            <button type="submit" value="selesai">Kirim Formulir</button>
+            @if($spmb->status !== 'selesai')<button type="submit" class="secondary" value="draft" formnovalidate>Simpan Draf</button>@endif
+            <button type="submit" value="selesai">{{ $spmb->status === 'selesai' ? 'Simpan Perubahan' : 'Kirim Formulir' }}</button>
         </div>
     </form>
 </main>
@@ -48,7 +54,7 @@
     form.addEventListener('submit', async event => {
         event.preventDefault();
         const selesai = event.submitter?.value === 'selesai';
-        if (selesai && !window.confirm('Kirim formulir? Pastikan seluruh data sudah benar.')) return;
+        if (selesai && !window.confirm(@json($spmb->status === 'selesai' ? 'Simpan perubahan formulir? Pastikan seluruh data sudah benar.' : 'Kirim formulir? Pastikan seluruh data sudah benar.'))) return;
         const body = new FormData(form);
         body.set('_selesai', selesai ? '1' : '0');
         // Kirim pilihan kosong juga agar pilihan lama dapat dihapus saat menyimpan ulang.

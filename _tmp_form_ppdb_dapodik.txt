@@ -1,0 +1,113 @@
+﻿center-48445600
+PROGRAM PAKET A
+|  | FORMULIR PENDAFTARAN MURID BARU Program Paket A
+|  | PKBM / Madrasah Salafiyah Ula (MSU/SD) Ibnu Abbas
+TAHUN PELAJARAN 2027 /2028
+|  | DATA CALON MURID
+|  |  |  | Nama Lengkap Murid |  | : |
+|  |  |  |  | Jenis Kelamin |  |  | :
+|  |  |  | Tempat Lahir |  | : |
+|  |  |  | Tanggal dan Tahun Lahir |  | : |
+|  |  |  | No Registasi Akta Lahir |  | : |
+|  |  |  | NIK |  | : |
+|  |  |  | NISN* |  | : |
+|  |  |  | No KK |  | : |
+|  |  |  | Kewarganegaraan |  | :
+|  |  |  | Nama Negara |  | : |
+|  |  |  | Status Anak |  | :
+|  |  |  | Anak Ke- |  | : |
+|  |  |  | Jumlah Saudara |  | : |
+|  |  |  | Cita – Cita |  | : |
+|  |  |  | Hobi |  | : |
+|  |  |  |  | Penyakit Yang Pernah Diderita |  | : |
+|  |  |  |  | Apakah punya KIP |  |  | :
+|  |  |  |  | Apakah akan menerima KIP |  | :
+|  |  |  |  | Alasan menolak PIP |  |  | :
+|  |  | Alat Transportasi | :
+| KETERANGAN TEMPAT TINGGAL
+|  |  | Alamat Jalan | : |
+|  |  | RT | : |
+|  |  | RW | : |
+|  |  | Kelurahan | : |
+|  |  | Kecamatan | : |
+|  |  | Kota/ Kabupaten | : |
+|  |  | Provinsi | : |
+|  |  | Kode Pos | : |
+|  |  | Lintang | : |
+|  |  | Bujur | : |
+|  |  | Jenis Tinggal | :
+| DATA ORANG TUA/ WALI
+| AYAH
+|  |  |  | Nama Lengkap Ayah | : |
+|  |  |  | Status Ayah | :
+|  |  |  | Tempat Lahir | : |
+|  |  |  | Tanggal dan Tahun Lahir | : |
+|  |  |  | NIK | : |
+|  |  |  | Pekerjaan | :
+|  |  |  | Pendidikan Terakhir | :
+|  |  |  | Nomor HP/ WA | : |
+|  |  |  | Alamat E – Mail | : |
+|  |  |  | Penghasilan /Bulan | :
+|  |  |  | Bekebutuhan Khusus | :
+|  |  |  | Kebutuhan Yang disandang | : |
+|  |  | IBU
+|  |  | Nama Lengkap Ibu | : |
+|  |  | Status Ibu: | :
+|  |  | Tempat Lahir | : |
+|  |  | Tanggal dan Tahun Lahir | : |
+|  |  | NIK | : |
+|  |  | Pekerjaan | :
+|  |  | Pendidikan Terakhir | :
+|  |  | Nomor HP/ WA | : |
+|  |  | Alamat E – Mail | : |
+|  |  | Penghasilan /Bulan | : |
+|  |  | Bekebutuhan Khusus | :
+|  |  | Kebutuhan Yang disandang | : |
+|  |  | WALI (Isi Jika Diperlukan)
+|  |  | Nama Lengkap Wali | : |
+|  |  | Tempat Lahir | : |
+|  |  | Tanggal dan Tahun Lahir | : |
+|  |  | NIK | : |
+|  |  | Pekerjaan | :
+|  |  | Pendidikan Terakhir | :
+|  |  | Nomor HP/ WA | : |
+|  |  | Alamat E – Mail | : |
+|  |  |  | Penghasilan /Bulan | :
+| DATA PERIODIK
+|  |  | Tinggi Badan (cm) | : |
+|  |  | Berat Badan (kg) | : |
+|  |  | Lingkar Kepala (cm) | : |
+|  |  | Jarak Rumah ke sekolah (km) | : |
+|  |  | Waktu Tempuh ke sekolah (Menit) | : |
+|  |  | Jumlah Saudara Kandung | : |
+| PRESTASI
+|  |  |  | Jenis | :
+|  |  |  | Tingkat | :
+|  |  |  | Nama Prestasi | : |
+|  |  |  | Tahun | : |
+|  |  |  | Penyelenggara/Panitia | : |
+|  |  |  | Peringkat (1,2,3,dst.) | : |
+| BEASISWA
+|  |  | Jenis beasiswa | :
+|  |  | Keterangan | : |
+|  |  | Tahun mulai diterimanya beasiswa | : |
+|  |  | Tahun selesai diterimanya beasiswa | : |
+|  |  | *Keterangan terkait beasiswa yang pernah diterima oleh peserta didik. Misalnya dapat diisi dengan nama beasiswa, seperti Beasiswa Murid Berprestasi Tahun2017, atau keterangan lain yang relevan.
+| KESEJAHTERAAN PESERTA DIDIK
+|  |  | Jenis Kesejahteraan | :
+|  |  | No. Kartu | : |
+|  |  | Nama di kartu | : |
+|  | REGISTRASI PESERTA DIDIK
+|  |  | Jenis Pendaftaran | :
+|  |  | Asal Sekolah | : |
+|  |  | Nomor Peserta UN SD/MI | : |
+|  |  | No. Seri Ijazah SD/MI | : |
+|  |  | No. SKHUN SD/MI | : |
+|  |  | * Nomor peserta Ujian adalah 20 Digit yang tertera dalam SKHU (Format Baku 2-12-02-01-001-002-7), diisi bagi peserta didik jenjang SMP.
+|  |  | * Silakan mengosongkan jawaban nomor 3-4 bagi Peserta didik jenjang SD.
+Mengetahui
+Panitia PPDB
+(………………………………)
+Balikpapan, ………………
+Orang Tua /Wali
+(………………………………)

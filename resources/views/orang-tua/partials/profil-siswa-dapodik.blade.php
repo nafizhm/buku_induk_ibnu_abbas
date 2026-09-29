@@ -88,7 +88,7 @@
       <div class="dapodik-grid">
       @foreach($fields as $field)
         @php
-          [$name,$label,$type]=array_slice($field,0,3); $options=$field[3]??[]; $required=$field[4]??false;
+          [$name,$label,$type]=array_slice($field,0,3); $options=$field[3]??[]; $required= !($allowIncomplete ?? false) && ($field[4]??false);
           $value=old($name,data_get($siswa,$name)); if($value instanceof \Carbon\CarbonInterface)$value=$value->format('Y-m-d');
           $selectedMultiple=is_array($value) ? $value : collect(explode(', ',(string)$value))->filter()->all();
           $wide=in_array($type,['textarea','multiple'],true) || in_array($name,['nama_lengkap','alamat'],true);

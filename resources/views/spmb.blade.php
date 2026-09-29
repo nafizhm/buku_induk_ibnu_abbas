@@ -1,3 +1,4 @@
+@php($isSmp = $isSmp ?? false)
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,7 +16,7 @@ if (!window.location.hash && performance.getEntriesByType('navigation')[0]?.type
   }, { once: true });
 }
 </script>
-<title>SPMB Rumah Qur'an Ibnu Abbas 2026/2027</title>
+<title>SPMB {{ $isSmp ? 'SMP' : 'SD' }} Rumah Qur'an Ibnu Abbas 2027/2028</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -95,7 +96,7 @@ h2{font-size:27px;color:var(--p800);margin:4px 0 6px}
 .docs li:last-child{border:0}
 a.map{color:var(--p600);font-weight:700;text-decoration:none}
 
-.jenjang-pilihan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:400px;margin:26px auto 0;scroll-margin-top:80px}
+.jenjang-pilihan{display:grid;grid-template-columns:1fr;gap:14px;max-width:400px;margin:26px auto 0;scroll-margin-top:80px}
 .jenjang-tombol{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:#fff;color:var(--p900);border-radius:18px;text-decoration:none;border:2px solid transparent;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .jenjang-tombol img{width:100%;height:120px;object-fit:contain}
 .jenjang-tombol strong{font-size:19px}.jenjang-tombol small{font-size:12px}
@@ -202,25 +203,33 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   <video class="vid" autoplay muted loop playsinline preload="auto" src="{{ asset('assets/spmb/hero-bg.mp4') }}"></video>
   <div class="wrap">
     <img class="logo" src="{{ asset('assets/spmb/logo-pkbm.jpg') }}" alt="Logo Rumah Qur'an Ibnu Abbas">
-    <span class="badge">Pendaftaran Online · TP 2026/2027</span>
+    <span class="badge">Pendaftaran Online · TP 2027/2028</span>
     <h1>Penerimaan <span>Santri Baru</span></h1>
-    <p class="sub">PKBM Ibnu Abbas · Pendaftaran SD (Banin &amp; Banat) dan SMP (khusus Banin). Daftar dari rumah, cukup lewat HP.</p>
+    <p class="sub">PKBM Ibnu Abbas · {{ $isSmp ? 'Paket Kesetaraan B (MSW/SMP) · Khusus Putra · NPSN P2971339' : 'Pendaftaran SD (Banin & Banat). Daftar dari rumah, cukup lewat HP.' }}</p>
+    @if($isSmp)<p class="sub">Rumah Qur'an Ibnu Abbas, Jalan Satu Kampung Timur, Gunung Samarinda, Balikpapan Utara, Kaltim.</p>@endif
     <div class="jenjang-pilihan" id="pilih-jenjang">
+      @unless($isSmp)
       <a class="jenjang-tombol" href="#daftar" data-jenjang="SD">
         <img src="{{ asset('assets/spmb/logo-sd.jpg') }}" alt="Logo SD Ibnu Abbas">
         <strong>Daftar SD</strong><small>Putra &amp; Putri</small>
       </a>
+      @else
       <a class="jenjang-tombol" href="#daftar" data-jenjang="SMP">
         <img src="{{ asset('assets/spmb/logo-smp.jpg') }}" alt="Logo SMP Ibnu Abbas">
         <strong>Daftar SMP</strong><small>Khusus Putra</small>
       </a>
+      @endunless
     </div>
-    <div class="stats">
+    <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+      @if($isSmp)
+      <div class="stat"><b>30</b><small>Kuota pendaftar putra</small></div>
+      <div class="stat"><b>20</b><small>Kuota diterima</small></div>
+      @else
       <div class="stat"><b>14</b><small>SD · Banin</small></div>
       <div class="stat"><b>16</b><small>SD · Banat</small></div>
-      <div class="stat"><b>20</b><small>SMP · Banin</small></div>
+      @endif
     </div>
-    <p>Pendaftaran dibuka 1 Oktober</p>
+    <p>{{ $isSmp ? '01 Oktober 2026 M – Kuota terpenuhi' : 'Pendaftaran dibuka 1 Oktober' }}</p>
   </div>
 </header>
 
@@ -249,6 +258,9 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   </div>
 </section>
 
+@if($isSmp)
+@include('spmb.smp-content')
+@else
 <section>
   <div class="eyebrow">PROGRAM UNGGULAN</div>
   <h2>Tumbuh bersama Al-Qur'an</h2>
@@ -272,7 +284,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   <div class="eyebrow">SYARAT</div>
   <h2>Ketentuan pendaftar</h2>
   <div class="card">
-    <div class="chips"><span class="chip">SD: Banin &amp; Banat</span><span class="chip">SMP: khusus Banin</span><span class="chip">Usia min. 6,5 th (Juni 2027)</span><span class="chip">Observasi santri</span><span class="chip">Wawancara ortu</span></div>
+    <div class="chips"><span class="chip">SD: Banin &amp; Banat</span><span class="chip">Usia min. 6,5 th (Juni 2027)</span><span class="chip">Observasi santri</span><span class="chip">Wawancara ortu</span></div>
     <p class="note">Pendaftaran otomatis ditutup saat kuota terpenuhi. Mohon maaf, belum dapat menerima calon santri berkebutuhan khusus.</p>
   </div>
 </section>
@@ -301,6 +313,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   </div>
 </section>
 
+@endif
 <section>
   <div class="eyebrow">LOKASI</div>
   <h2>Kunjungi kami</h2>
@@ -323,14 +336,13 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 <div class="formbox" id="daftar" hidden>
 <div class="wrap">
   <div class="eyebrow">PENDAFTARAN AWAL</div>
-  <h2 id="form-title">Isi form awal</h2>
-  <a href="#pilih-jenjang">Ganti jenjang</a>
+  <h2 id="form-title">Form Pendaftaran {{ $isSmp ? 'SMP' : 'SD' }}</h2>
   <p class="lead">Lengkapi data singkat dan upload bukti transfer. Setelah diverifikasi, admin mengirim link formulir lengkap lewat WhatsApp.</p>
   <div id="formArea">
     <form id="frm" action="{{ route('spmb.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       <div class="f"><label class="l">Nama calon siswa <em>*</em></label><input type="text" name="nama" required autocomplete="off"></div>
-      <input type="hidden" id="jenjang" name="jenjang" value="">
+      <input type="hidden" id="jenjang" name="jenjang" value="{{ $isSmp ? 'SMP' : 'SD' }}">
       <p class="note" id="jenjang-info" aria-live="polite"></p>
       <div class="f"><label class="l">Jenis kelamin <em>*</em></label>
         <div class="seg"><label><input type="radio" name="jk" value="Putra (Banin)" checked><span>Putra (Banin)</span></label><label><input type="radio" name="jk" value="Putri (Banat)"><span>Putri (Banat)</span></label></div></div>
@@ -356,7 +368,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 
 <footer>Rumah Qur'an Ibnu Abbas · PKBM Ibnu Abbas · NPSN P2971339</footer>
 
-<div class="dock"><div><b>Kuota terbatas</b><span style="font-size:12px">SD: Banin 14 · Banat 16<br>SMP: Banin 20</span></div><a href="#pilih-jenjang">Daftar</a></div>
+<div class="dock"><div><b>Kuota terbatas</b><span style="font-size:12px">{{ $isSmp ? 'SMP: 30 pendaftar · 20 diterima' : 'SD: Banin 14 · Banat 16' }}</span></div><a href="#daftar" data-jenjang="{{ $isSmp ? 'SMP' : 'SD' }}">Daftar</a></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -366,8 +378,10 @@ function syncJenjang(){
   banat.disabled=smp;
   banat.closest('label').style.display=smp ? 'none' : '';
   if(smp) document.querySelector('input[name="jk"][value="Putra (Banin)"]').checked=true;
-  $('jenjang-info').textContent=smp ? 'SMP: kuota 20 Putra (Banin). Pendaftaran SMP khusus Banin.' : 'Kuota SD: Banin 14, Banat 16. SMP: Banin 20.';
+  $('jenjang-info').textContent=smp ? 'SMP khusus Putra (Banin): kuota 30 pendaftar, 20 diterima setelah tes dan observasi.' : 'Kuota SD: Banin 14, Banat 16.';
 }
+syncJenjang();
+if(window.location.hash==='#daftar') $('daftar').hidden=false;
 document.querySelectorAll('[data-jenjang]').forEach(button=>{
   button.addEventListener('click',()=>{
     $('jenjang').value=button.dataset.jenjang;
