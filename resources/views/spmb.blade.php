@@ -18,7 +18,7 @@ if (!window.location.hash && performance.getEntriesByType('navigation')[0]?.type
   }, { once: true });
 }
 </script>
-<title>SPMB {{ $isSmp ? 'SMP' : 'SD' }} Rumah Qur'an Ibnu Abbas 2027/2028</title>
+<title>SPMB {{ $isSmp ? 'Paket B (MSW/SMP)' : 'Paket A (MSU/SD)' }} Rumah Qur'an Ibnu Abbas 2027/2028</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -207,18 +207,18 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
     <img class="logo" src="{{ asset('assets/spmb/logo-pkbm.jpg') }}" alt="Logo Rumah Qur'an Ibnu Abbas">
     <span class="badge">Pendaftaran Online · TP 2027/2028</span>
     <h1>Penerimaan <span>Santri Baru</span></h1>
-    <p class="sub">PKBM Ibnu Abbas · {{ $isSmp ? 'Paket B (MSW/SD) · Khusus Putra · NPSN P2971339' : 'Paket A (MSU/SD) · Pendaftaran SD (Banin & Banat). Daftar dari rumah, cukup lewat HP.' }}</p>
+    <p class="sub">PKBM Ibnu Abbas · {{ $isSmp ? 'Paket B (MSW/SMP) · Khusus Putra · NPSN P2971339' : 'Pendaftaran Paket A (MSU/SD) (Banin & Banat). Daftar dari rumah, cukup lewat HP.' }}</p>
     @if($isSmp)<p class="sub">Rumah Qur'an Ibnu Abbas, Jalan Satu Kampung Timur, Gunung Samarinda, Balikpapan Utara, Kaltim.</p>@endif
     <div class="jenjang-pilihan" id="pilih-jenjang">
       @unless($isSmp)
       <a class="jenjang-tombol" href="#daftar" data-jenjang="SD">
-        <img src="{{ asset('assets/spmb/logo-sd.jpg') }}" alt="Logo SD Ibnu Abbas">
-        <strong>Daftar SD</strong><small>Putra &amp; Putri</small>
+        <img src="{{ asset('assets/spmb/logo-sd.jpg') }}" alt="Logo Paket A (MSU/SD) Ibnu Abbas">
+        <strong>Daftar Paket A (MSU/SD)</strong><small>Putra &amp; Putri</small>
       </a>
       @else
       <a class="jenjang-tombol" href="#daftar" data-jenjang="SMP">
-        <img src="{{ asset('assets/spmb/logo-smp.jpg') }}" alt="Logo SMP Ibnu Abbas">
-        <strong>Daftar SMP</strong><small>Khusus Putra</small>
+        <img src="{{ asset('assets/spmb/logo-smp.jpg') }}" alt="Logo Paket B (MSW/SMP) Ibnu Abbas">
+        <strong>Daftar Paket B (MSW/SMP)</strong><small>Khusus Putra</small>
       </a>
       @endunless
     </div>
@@ -227,8 +227,8 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
       <div class="stat"><b>30</b><small>Kuota pendaftar putra</small></div>
       <div class="stat"><b>20</b><small>Kuota diterima</small></div>
       @else
-      <div class="stat"><b>14</b><small>SD · Banin</small></div>
-      <div class="stat"><b>16</b><small>SD · Banat</small></div>
+      <div class="stat"><b>14</b><small>Paket A (MSU/SD) · Banin</small></div>
+      <div class="stat"><b>16</b><small>Paket A (MSU/SD) · Banat</small></div>
       @endif
     </div>
     <p>{{ $isSmp ? '01 Oktober 2026 M – Kuota terpenuhi' : 'Pendaftaran dibuka 1 Oktober' }}</p>
@@ -291,7 +291,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
   <div class="eyebrow">SYARAT</div>
   <h2>Ketentuan pendaftar</h2>
   <div class="card">
-    <div class="chips"><span class="chip">SD: Banin &amp; Banat</span><span class="chip">Usia min. 6,5 th (Juni 2027)</span><span class="chip">Observasi santri</span><span class="chip">Wawancara ortu</span></div>
+    <div class="chips"><span class="chip">Paket A (MSU/SD): Banin &amp; Banat</span><span class="chip">Usia min. 6,5 th (Juni 2027)</span><span class="chip">Observasi santri</span><span class="chip">Wawancara ortu</span></div>
     <p class="note">Pendaftaran otomatis ditutup saat kuota terpenuhi. Mohon maaf, belum dapat menerima calon santri berkebutuhan khusus.</p>
   </div>
 </section>
@@ -343,7 +343,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 <div class="formbox" id="daftar" hidden>
 <div class="wrap">
   <div class="eyebrow">PENDAFTARAN AWAL</div>
-  <h2 id="form-title">Form Pendaftaran {{ $isSmp ? 'SMP' : 'SD' }}</h2>
+  <h2 id="form-title">Form Pendaftaran {{ $isSmp ? 'Paket B (MSW/SMP)' : 'Paket A (MSU/SD)' }}</h2>
   <p class="lead">Lengkapi data singkat dan upload bukti transfer. Setelah diverifikasi, admin mengirim link formulir lengkap lewat WhatsApp.</p>
   <div id="formArea">
     <form id="frm" action="{{ route('spmb.store') }}" method="POST" enctype="multipart/form-data">
@@ -375,7 +375,7 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 
 <footer>Rumah Qur'an Ibnu Abbas · PKBM Ibnu Abbas · NPSN P2971339</footer>
 
-<div class="dock"><div><b>Kuota terbatas</b><span style="font-size:12px">{{ $isSmp ? 'SMP: 30 pendaftar · 20 diterima' : 'SD: Banin 14 · Banat 16' }}</span></div><a href="#daftar" data-jenjang="{{ $isSmp ? 'SMP' : 'SD' }}">Daftar</a></div>
+<div class="dock"><div><b>Kuota terbatas</b><span style="font-size:12px">{{ $isSmp ? 'Paket B (MSW/SMP): 30 pendaftar · 20 diterima' : 'Paket A (MSU/SD): Banin 14 · Banat 16' }}</span></div><a href="#daftar" data-jenjang="{{ $isSmp ? 'SMP' : 'SD' }}">Daftar</a></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -385,14 +385,14 @@ function syncJenjang(){
   banat.disabled=smp;
   banat.closest('label').style.display=smp ? 'none' : '';
   if(smp) document.querySelector('input[name="jk"][value="Putra (Banin)"]').checked=true;
-  $('jenjang-info').textContent=smp ? 'SMP khusus Putra (Banin): kuota 30 pendaftar, 20 diterima setelah tes dan observasi.' : 'Kuota SD: Banin 14, Banat 16.';
+  $('jenjang-info').textContent=smp ? 'Paket B (MSW/SMP) khusus Putra (Banin): kuota 30 pendaftar, 20 diterima setelah tes dan observasi.' : 'Kuota Paket A (MSU/SD): Banin 14, Banat 16.';
 }
 syncJenjang();
 if(window.location.hash==='#daftar') $('daftar').hidden=false;
 document.querySelectorAll('[data-jenjang]').forEach(button=>{
   button.addEventListener('click',()=>{
     $('jenjang').value=button.dataset.jenjang;
-    $('form-title').textContent='Form Pendaftaran '+button.dataset.jenjang;
+    $('form-title').textContent='Form Pendaftaran '+(button.dataset.jenjang==='SD' ? 'Paket A (MSU/SD)' : 'Paket B (MSW/SMP)');
     $('daftar').hidden=false;
     syncJenjang();
   });

@@ -72,7 +72,7 @@
 
 <section>
   <div class="eyebrow">BIAYA PENDIDIKAN</div>
-  <h2>Rincian biaya SMP</h2>
+  <h2>Rincian biaya Paket B (MSW/SMP)</h2>
   <div class="card">
     <div class="row"><span>Sarana dan prasarana putra</span><b>Rp13.000.000</b></div>
     <p class="note">Termasuk uang pangkal, pembangunan, seragam 4 stel, buku pelajaran kelas 1 dan sampul rapor.</p>
