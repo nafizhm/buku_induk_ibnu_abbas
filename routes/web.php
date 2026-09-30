@@ -93,6 +93,8 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::prefix('master')->group(function () {
         Route::get('jenjang', [MasterKelasController::class, 'index'])->name('jenjang.index');
         Route::get('kelas/{kela}/detail', [MasterKelasController::class, 'detail'])->name('kelas.detail');
+        Route::post('kelas/{kela}/siswa', [MasterKelasController::class, 'tambahSiswa'])->name('kelas.siswa.store');
+        Route::delete('kelas/{kela}/siswa/{siswa}', [MasterKelasController::class, 'keluarkanSiswa'])->name('kelas.siswa.destroy');
         Route::resource('kelas', MasterKelasController::class)->except(['create', 'edit']);
         Route::resource('tahun-ajaran', TahunAjaranController::class);
 

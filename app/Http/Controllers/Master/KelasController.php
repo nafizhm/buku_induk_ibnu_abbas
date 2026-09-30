@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
@@ -18,7 +19,20 @@ class KelasController extends Controller {
   }
   return view('admin.master.kelas.index');
  }
- public function detail(Kelas $kela){$kela->load(['siswa'=>fn($q)=>$q->orderBy('nama_lengkap')]);return view('admin.master.kelas.detail',['kelas'=>$kela]);}
+ public function detail(Kelas $kela){
+  $kela->load(['siswa'=>fn($q)=>$q->orderBy('nama_lengkap')]);
+  $pilihanSiswa=Siswa::with('kelas')->where(fn($q)=>$q->whereNull('kelas_id')->orWhere('kelas_id','<>',$kela->id_kelas))->orderBy('nama_lengkap')->get();
+  return view('admin.master.kelas.detail',['kelas'=>$kela,'pilihanSiswa'=>$pilihanSiswa]);
+ }
+ public function tambahSiswa(Request $request,Kelas $kela){
+  $data=$request->validate(['siswa_id'=>['required','integer',Rule::exists('siswa','id')]]);
+  Siswa::findOrFail($data['siswa_id'])->update(['kelas_id'=>$kela->id_kelas]);
+  return redirect()->route('kelas.detail',$kela)->with('success','Siswa berhasil ditambahkan ke kelas.');
+ }
+ public function keluarkanSiswa(Kelas $kela,Siswa $siswa){
+  abort_unless($kela->siswa()->whereKey($siswa->id)->update(['kelas_id'=>null]),404);
+  return redirect()->route('kelas.detail',$kela)->with('success','Siswa berhasil dikeluarkan dari kelas. Data siswa tetap tersimpan.');
+ }
  public function show(Kelas $kela){return response()->json(['data'=>$kela]);}
  public function store(Request $r){Kelas::create($this->data($r));return response()->json(['message'=>'Kelas berhasil ditambahkan.']);}
  public function update(Request $r,Kelas $kela){$kela->update($this->data($r,$kela->id_kelas));return response()->json(['message'=>'Kelas berhasil diperbarui.']);}
