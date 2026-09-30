@@ -17,8 +17,9 @@ use App\Http\Controllers\Mobile\SiswaController as MobileSiswaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/spmb', 'spmb')->name('spmb');
-Route::view('/spmb-smp', 'spmb', ['isSmp' => true])->name('spmb.smp');
+Route::get('/spmb', [\App\Http\Controllers\MediaController::class, 'landing'])->name('spmb');
+Route::get('/spmb-smp', [\App\Http\Controllers\MediaController::class, 'landing'])->name('spmb.smp');
+Route::get('/media/foto/{media}', [\App\Http\Controllers\MediaController::class, 'foto'])->whereNumber('media')->name('media.foto');
 Route::post('/spmb', [\App\Http\Controllers\SpmbController::class, 'store'])->middleware('throttle:10,1')->name('spmb.store');
 Route::get('/spmb/berhasil', [\App\Http\Controllers\SpmbController::class, 'berhasil'])->name('spmb.berhasil');
 Route::get('/spmb/formulir/{token}', [\App\Http\Controllers\SpmbController::class, 'formulir'])->where('token', '[A-Za-z0-9]{10}')->name('spmb.formulir');
@@ -55,6 +56,12 @@ Route::group(['middleware' => 'guest'], function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+    foreach (['foto', 'video'] as $jenis) {
+        Route::get('media/'.$jenis, [\App\Http\Controllers\MediaController::class, 'index'])->defaults('jenis', $jenis)->name('admin.media.'.$jenis.'.index');
+        Route::post('media/'.$jenis, [\App\Http\Controllers\MediaController::class, 'store'])->defaults('jenis', $jenis)->name('admin.media.'.$jenis.'.store');
+        Route::put('media/'.$jenis.'/{media}', [\App\Http\Controllers\MediaController::class, 'update'])->whereNumber('media')->defaults('jenis', $jenis)->name('admin.media.'.$jenis.'.update');
+        Route::delete('media/'.$jenis.'/{media}', [\App\Http\Controllers\MediaController::class, 'destroy'])->whereNumber('media')->defaults('jenis', $jenis)->name('admin.media.'.$jenis.'.destroy');
+    }
     Route::resource('template', \App\Http\Controllers\TemplateController::class)->names('admin.template');
     foreach (['admin.pendaftar' => 'pendaftar', 'admin.smp.pendaftar' => 'spmb-smp/pendaftar'] as $name => $path) {
         foreach (['pernyataan', 'wawancara'] as $jenis) {

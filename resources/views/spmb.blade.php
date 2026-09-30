@@ -236,35 +236,37 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 </header>
 
 <main class="wrap">
+@if($videos->isNotEmpty())
 <section>
   <div class="eyebrow">VIDEO PROFIL</div>
   <h2>Kenali lebih dekat</h2>
   <p class="lead">Tonton gambaran kegiatan belajar di Rumah Qur'an Ibnu Abbas.</p>
+  @foreach($videos as $video)
   <div class="card" style="padding:10px">
-    <iframe class="video-frame" src="https://www.youtube-nocookie.com/embed/5NSZyhx1s-w" title="Video Rumah Qur'an Ibnu Abbas di YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    <a class="map" href="https://youtu.be/5NSZyhx1s-w" target="_blank" rel="noopener noreferrer">Tonton di YouTube &rarr;</a>
+    <h3>{{ $video->judul }}</h3>
+    <iframe class="video-frame" src="https://www.youtube-nocookie.com/embed/{{ $video->youtube_code }}" title="{{ $video->judul }}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <a class="map" href="https://youtu.be/{{ $video->youtube_code }}" target="_blank" rel="noopener noreferrer">Tonton di YouTube &rarr;</a>
   </div>
+  @endforeach
 </section>
+@endif
 
+@if($photos->isNotEmpty())
 <section>
   <div class="eyebrow">SUASANA SEKOLAH</div>
   <h2>Sekilas Rumah Qur'an</h2>
   <p class="lead">Geser untuk melihat kegiatan dan lingkungan belajar santri. Klik foto untuk memperbesar.</p>
   <div class="gal">
-    @php
-      $gallery = $isSmp
-        ? [1 => 'Kebersamaan santri di pantai', 2 => 'Kegiatan santri di Kilang Mandiri', 3 => 'Ruang ibadah dan belajar', 9 => 'Ruang administrasi sekolah', 10 => 'Asrama santri']
-        : [4 => 'Kebersamaan santriwati di sekolah', 5 => 'Kegiatan belajar di kelas', 6 => 'Belajar Al-Quran bersama', 7 => 'Pendampingan membaca Al-Quran', 8 => 'Suasana belajar santriwati', 3 => 'Ruang ibadah dan belajar', 9 => 'Ruang administrasi sekolah'];
-    @endphp
-    @foreach ($gallery as $photo => $caption)
-      <a class="shot" href="{{ asset('assets/spmb/galeri/foto-' . $photo . '.jpeg') }}" data-gallery aria-label="Perbesar foto: {{ $caption }}">
-        <img src="{{ asset('assets/spmb/galeri/foto-' . $photo . '.jpeg') }}" alt="{{ $caption }}" width="1280" height="960" loading="lazy" decoding="async">
-        <span>{{ $caption }}</span>
+    @foreach ($photos as $photo)
+      <a class="shot" href="{{ $photo->foto_url }}" data-gallery aria-label="Perbesar foto: {{ $photo->judul }}">
+        <img src="{{ $photo->foto_url }}" alt="{{ $photo->judul }}" width="1280" height="960" loading="lazy" decoding="async">
+        <span>{{ $photo->judul }}</span>
       </a>
     @endforeach
   </div>
 </section>
 
+@endif
 @if($isSmp)
 @include('spmb.smp-content')
 @else
