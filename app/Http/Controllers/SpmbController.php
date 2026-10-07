@@ -39,9 +39,21 @@ class SpmbController extends Controller
         abort_unless($path, 500, 'Bukti transfer gagal disimpan. Silakan coba lagi.');
         unset($data['bukti']);
         try {
-            $pendaftaran = SpmbPendaftaran::create($data + [
-                'bukti_path' => $path, 'bukti_mime' => $file->getMimeType(),
-            ]);
+            $pendaftaran = DB::transaction(function () use ($data, $path, $file) {
+                DB::table('spmb_quota_locks')->where('jenjang', $data['jenjang'])->where('jk', $data['jk'])->lockForUpdate()->firstOrFail();
+                $limit = \App\Support\SpmbQuota::LIMITS[$data['jenjang']][$data['jk']];
+                // Locking reads see the latest committed registrations, including concurrent submissions.
+                $count = SpmbPendaftaran::where('jenjang', $data['jenjang'])->where('jk', $data['jk'])->lockForUpdate()->get(['id'])->count();
+                if ($count >= $limit) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'jk' => 'Pendaftaran '.$data['jenjang'].' '.$data['jk'].' ditutup karena kuota sudah terpenuhi.',
+                    ]);
+                }
+
+                return SpmbPendaftaran::create($data + [
+                    'bukti_path' => $path, 'bukti_mime' => $file->getMimeType(),
+                ]);
+            }, 3);
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete($path);
             throw $exception;

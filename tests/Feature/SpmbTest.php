@@ -195,8 +195,9 @@ class SpmbTest extends TestCase
     public function test_jenjang_and_payment_information(): void
     {
         Storage::fake('local');
-        $this->get('/spmb')->assertOk()->assertSee('6922406810')->assertSee('081905059919')
-            ->assertSee('name="jenjang"', false)->assertSee('SD: Banin 14');
+        $page = $this->get('/spmb')->assertOk()->assertSee('6922406810')->assertSee('081905059919')
+            ->assertSee('name="jenjang"', false);
+        $this->assertSame(14, $page->viewData('quotaAvailability')['SD']['Putra (Banin)']['limit']);
         $data = $this->payload();
         unset($data['jenjang']);
         $this->postJson('/spmb', $data)->assertUnprocessable()->assertJsonValidationErrors('jenjang');

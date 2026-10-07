@@ -381,13 +381,27 @@ footer{text-align:center;padding:26px 20px;color:var(--muted);font-size:13.5px}
 
 <script>
 const $=id=>document.getElementById(id);
+const quotaAvailability=@json($quotaAvailability);
 function syncJenjang(){
   const smp=$('jenjang').value==='SMP';
   const banat=document.querySelector('input[name="jk"][value="Putri (Banat)"]');
-  banat.disabled=smp;
   banat.closest('label').style.display=smp ? 'none' : '';
-  if(smp) document.querySelector('input[name="jk"][value="Putra (Banin)"]').checked=true;
-  $('jenjang-info').textContent=smp ? 'Paket B (MSW/SMP) khusus Putra (Banin): kuota 30 pendaftar, 20 diterima setelah tes dan observasi.' : 'Kuota Paket A (MSU/SD): Banin 14, Banat 16.';
+  const categories=quotaAvailability[$('jenjang').value];
+  const radios=[...document.querySelectorAll('input[name="jk"]')];
+  radios.forEach(radio=>{
+    const quota=categories[radio.value];
+    radio.disabled=!quota || quota.remaining===0;
+    radio.closest('label').querySelector('span').textContent=radio.value+(quota && quota.remaining===0 ? ' — Kuota penuh' : '');
+    if(radio.disabled) radio.checked=false;
+  });
+  if(!radios.some(radio=>radio.checked)){
+    const available=radios.find(radio=>!radio.disabled);
+    if(available) available.checked=true;
+  }
+  const closed=radios.every(radio=>radio.disabled);
+  $('send').disabled=closed;
+  $('send').textContent=closed ? 'Pendaftaran ditutup' : 'Kirim';
+  $('jenjang-info').textContent=Object.entries(categories).map(([jk,quota])=>jk+': '+(quota.remaining===0 ? 'pendaftaran ditutup (kuota penuh)' : 'tersisa '+quota.remaining+' dari '+quota.limit+' kuota')).join('. ');
 }
 syncJenjang();
 if(window.location.hash==='#daftar') $('daftar').hidden=false;
@@ -426,6 +440,11 @@ $('frm').onsubmit=async(event)=>{
     const r=await fetch(fr.action,{method:'POST',body:fd,headers:{Accept:'application/json'}});
     const data=await r.json().catch(()=>({}));
     if(!r.ok){
+      if(r.status===422 && (data.errors?.jk||[]).some(message=>message.includes('kuota sudah terpenuhi'))){
+        const selected=fr.querySelector('input[name="jk"]:checked');
+        if(selected) quotaAvailability[$('jenjang').value][selected.value].remaining=0;
+        syncJenjang();
+      }
       const message=r.status===422 ? (Object.values(data.errors||{}).flat().join('\n') || 'Data registrasi tidak valid. Periksa kembali isian dan bukti transfer.')
         : r.status===419 ? 'Sesi berakhir. Muat ulang halaman sebelum mengirim kembali.'
         : r.status===413 ? 'Ukuran unggahan terlalu besar. Pilih file yang lebih kecil.'
@@ -440,7 +459,7 @@ $('frm').onsubmit=async(event)=>{
     $('formError').textContent=e instanceof TypeError ? 'Tidak dapat menerima respons server. Periksa koneksi internet dan hubungi admin untuk memastikan status registrasi sebelum mengirim ulang.' : (e.message||'Pengiriman gagal. Periksa koneksi lalu coba lagi.');
     $('formError').style.display='block';
     $('formError').scrollIntoView({behavior:'smooth',block:'center'});
-    $('send').disabled=false;$('send').textContent='Kirim';
+    syncJenjang();
   }
 };
 

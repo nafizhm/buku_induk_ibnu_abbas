@@ -103,6 +103,8 @@ class MediaController extends Controller
         $isSmp = $request->routeIs('spmb.smp');
         $media = Media::where('kategori', $isSmp ? 'SMP' : 'SD')->orderBy('id')->get();
 
-        return view('spmb', ['isSmp' => $isSmp, 'photos' => $media->where('jenis', 'foto'), 'videos' => $media->where('jenis', 'video')]);
+        return response()->view('spmb', ['isSmp' => $isSmp, 'photos' => $media->where('jenis', 'foto'), 'videos' => $media->where('jenis', 'video'),
+            'quotaAvailability' => \App\Support\SpmbQuota::availability(),
+        ])->header('Cache-Control', 'no-store, private');
     }
 }
