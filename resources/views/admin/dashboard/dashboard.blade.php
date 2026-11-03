@@ -4,6 +4,50 @@
         <h3>Dashboard</h3>
     </div>
     <div class="page-content">
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-danger">{{ $errors->first() }}</div>
+        @endif
+        @if(count($quotaAvailability))
+            <div class="card">
+                <div class="card-header"><h4>Pengaturan Kuota Pendaftaran</h4></div>
+                <div class="card-body">
+                    <p class="text-muted">Sudah mendaftar mencakup semua formulir masuk. Kuota 0 menutup pendaftaran kategori tersebut. Jika jumlah pendaftar mencapai kuota, pendaftaran baru otomatis ditutup.</p>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead><tr><th>Jenjang</th><th>Kategori</th><th>Kuota</th><th>Sudah mendaftar</th><th>Sisa kuota</th></tr></thead>
+                            <tbody>
+                                @foreach($quotaAvailability as $jenjang => $categories)
+                                    @foreach($categories as $jk => $quota)
+                                        <tr>
+                                            <td>{{ $jenjang }}</td><td>{{ $jk }}</td>
+                                            <td>
+                                                @if($quotaEditable[$jenjang])
+                                                    <form method="POST" action="{{ route('admin.kuota.update') }}" class="d-flex gap-2">
+                                                        @csrf @method('PUT')
+                                                        <input type="hidden" name="jenjang" value="{{ $jenjang }}">
+                                                        <input type="hidden" name="jk" value="{{ $jk }}">
+                                                        <input type="number" name="kuota" value="{{ old('jenjang') === $jenjang && old('jk') === $jk ? old('kuota') : $quota['limit'] }}" min="0" max="1000000" required class="form-control" style="width: 110px" aria-label="Kuota {{ $jenjang }} {{ $jk }}">
+                                                        <button class="btn btn-primary" type="submit">Simpan Kuota</button>
+                                                    </form>
+                                                @else
+                                                    {{ $quota['limit'] }}
+                                                    <small class="d-block text-muted">Perlu hak Edit pada SPMB {{ $jenjang }} → Formulir.</small>
+                                                @endif
+                                            </td>
+                                            <td><strong>{{ $quota['registered'] }}</strong> pendaftar</td>
+                                            <td>{{ $quota['remaining'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
         @forelse($spmbStatistik as $jenjang => $statistik)
             <section class="mb-4" aria-labelledby="spmb-{{ strtolower($jenjang) }}">
                 <h4 id="spmb-{{ strtolower($jenjang) }}">SPMB {{ $jenjang }}</h4>

@@ -89,7 +89,18 @@ class DashboardController extends Controller
             }
         }
 
-        return view('admin.dashboard.dashboard', compact('spmbStatistik'));
+        $quotaAvailability = \App\Support\SpmbQuota::availability();
+        $quotaEditable = [];
+        foreach (['SD' => 'admin.spmb.index', 'SMP' => 'admin.smp.spmb.index'] as $jenjang => $route) {
+            if (! $allowedRoutes->contains($route)) {
+                unset($quotaAvailability[$jenjang]);
+                continue;
+            }
+            $quotaEditable[$jenjang] = HakAkses::where('id_user', auth()->id())->where('lihat', 1)->where('edit', 1)
+                ->whereHas('menu', fn ($query) => $query->where('route_name', $route))->exists();
+        }
+
+        return view('admin.dashboard.dashboard', compact('spmbStatistik', 'quotaAvailability', 'quotaEditable'));
     }
 
     public function filter(Request $request)

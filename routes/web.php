@@ -90,6 +90,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('spmb/{pendaftaran}/kirim-wa', [\App\Http\Controllers\SpmbController::class, 'kirimWa'])->whereNumber('pendaftaran')->name('admin.spmb.kirim-wa');
     Route::get('spmb/{pendaftaran}/bukti', [\App\Http\Controllers\SpmbController::class, 'bukti'])->whereNumber('pendaftaran')->name('admin.spmb.bukti');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::put('pengaturan/kuota-pendaftaran', [\App\Http\Controllers\Pengaturan\KuotaPendaftaranController::class, 'update'])->name('admin.kuota.update');
     Route::prefix('master')->group(function () {
         Route::get('jenjang', [MasterKelasController::class, 'index'])->name('jenjang.index');
         Route::get('kelas/{kela}/detail', [MasterKelasController::class, 'detail'])->name('kelas.detail');

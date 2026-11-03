@@ -40,8 +40,8 @@ class SpmbController extends Controller
         unset($data['bukti']);
         try {
             $pendaftaran = DB::transaction(function () use ($data, $path, $file) {
-                DB::table('spmb_quota_locks')->where('jenjang', $data['jenjang'])->where('jk', $data['jk'])->lockForUpdate()->firstOrFail();
-                $limit = \App\Support\SpmbQuota::LIMITS[$data['jenjang']][$data['jk']];
+                $quota = DB::table('spmb_quota_locks')->where('jenjang', $data['jenjang'])->where('jk', $data['jk'])->lockForUpdate()->firstOrFail();
+                $limit = (int) $quota->kuota;
                 // Locking reads see the latest committed registrations, including concurrent submissions.
                 $count = SpmbPendaftaran::where('jenjang', $data['jenjang'])->where('jk', $data['jk'])->lockForUpdate()->get(['id'])->count();
                 if ($count >= $limit) {

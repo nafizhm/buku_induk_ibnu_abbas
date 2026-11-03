@@ -9,6 +9,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="alert alert-info">Untuk mengubah kuota pendaftaran di Dashboard, aktifkan Lihat dan Edit pada menu Formulir di SPMB SD atau SPMB SMP.</div>
                     <div class="row mb-3 align-items-center">
                         <label for="" class="col-sm-2 col-form-label">Pilih Pengguna</label>
                         <div class="col-sm-3">
